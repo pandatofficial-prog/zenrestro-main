@@ -1,5 +1,9 @@
 const express = require('express');
 const cors = require('cors');
+const helmet = require('helmet');
+const compression = require('compression');
+const rateLimit = require('express-rate-limit');
+const morgan = require('morgan');
 const dotenv = require('dotenv');
 const connectDB = require('./config/db');
 
@@ -11,11 +15,30 @@ connectDB();
 
 const app = express();
 
-// Middleware
+// Security middleware (first)
+app.use(helmet());
+app.use(compression());
+
+// Rate limiting
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // limit each IP to 100 requests per windowMs
+  message: 'Too many requests from this IP, please try again later.',
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+app.use(limiter);
+
+// Logging
+app.use(morgan('combined'));
+
+// CORS (after security)
 app.use(cors({
-  origin: process.env.ALLOWED_ORIGINS?.split(',') || ['http://localhost:5173', 'http://localhost:3000'],
+  origin: process.env.ALLOWED_ORIGINS?.split(',') || ['http://localhost:5173', 'http://localhost:3000', 'https://zenrestro-web.onrender.com'],
   credentials: true,
 }));
+
+// Body parsers
 app.use(express.json({ limit: '10kb' }));
 app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 
@@ -91,7 +114,7 @@ app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(err.status || 500).json({
     message: err.message || 'Something went wrong!',
-    ...(process.env.NODE_ENV === 'development' && { error: err.message })
+    ...(process.env.NODE_ENV === 'production' ? {} : { error: err.message })
   });
 });
 
