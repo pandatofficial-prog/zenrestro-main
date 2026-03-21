@@ -1,0 +1,27 @@
+services:
+  # Backend API Service
+  - type: web
+    name: zenrestro-backend
+    env: node
+    region: singapore
+    buildCommand: cd backend && npm install
+    startCommand: cd backend && npm start
+    envVars:
+      - key: MONGODB_URI
+        sync: false
+      - key: PORT
+        value: 5000
+      - key: JWT_SECRET
+        sync: false
+      - key: ALLOWED_ORIGINS
+        value: https://zenrestro-5.onrender.com
+
+  # Frontend Static Site
+  - type: static
+    name: zenrestro-frontend
+    region: singapore
+    buildCommand: cd frontend && npm install && npm run build
+    buildDir: frontend/dist
+    envVars:
+      - key: VITE_API_URL
+        value: https://zenrestro-3.onrender.com/api
