@@ -1,0 +1,24 @@
+{
+  "name": "zenrestro",
+  "version": "1.0.0",
+  "description": "Restaurant Management SaaS",
+  "private": true,
+  "scripts": {
+    "install:all": "cd backend && npm install && cd ../frontend && npm install",
+    "dev": "cd backend && npm run dev & cd frontend && npm run dev",
+    "build": "cd frontend && npm run build",
+    "start": "cd backend && npm start",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "seed": "cd backend && npm run seed"
+  },
+  "keywords": [
+    "restaurant",
+    "management",
+    "saas",
+    "nodejs",
+    "react"
+  ],
+  "author": "ZenRestro",
+  "license": "MIT"
+}
