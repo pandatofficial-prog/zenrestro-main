@@ -64,6 +64,7 @@ app.use('/api/inventory', require('./routes/inventory'));
 app.use('/api/reports', require('./routes/reports'));
 app.use('/api/settings', require('./routes/settings'));
 app.use('/api/subscription', require('./routes/subscription'));
+app.use('/api/trial-requests', require('./routes/trialRequests'));
 // Tables API removed
 
 // Health check

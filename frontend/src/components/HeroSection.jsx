@@ -4,95 +4,91 @@ import { ArrowRight, CheckCircle2, Play } from 'lucide-react';
 
 const HeroSection = () => {
   return (
-    <section className="relative min-h-[90vh] flex items-center pt-24 overflow-hidden bg-gradient-to-b from-[#0B0B0B] to-[#0F172A]">
-      {/* Background Decorative Glow */}
-      <div className="absolute top-1/4 -left-20 w-96 h-96 bg-green-500/10 rounded-full blur-[120px]" />
-      <div className="absolute bottom-1/4 -right-20 w-96 h-96 bg-green-500/5 rounded-full blur-[120px]" />
+    <section className="relative min-h-[90vh] flex items-center pt-24 pb-12 overflow-hidden bg-[#0F172A]">
+      {/* Background Gradient Layer */}
+      <div className="absolute inset-0 bg-gradient-to-tr from-[#0B0B0B] via-[#0F172A] to-[#1E293B]" />
+      
+      {/* Accent Glows */}
+      <div className="absolute top-1/4 -left-20 w-80 h-80 bg-green-500/10 rounded-full blur-[100px]" />
+      <div className="absolute top-1/2 right-1/4 w-96 h-96 bg-blue-500/5 rounded-full blur-[120px]" />
 
-      <div className="container mx-auto px-6 grid md:grid-cols-2 gap-12 items-center relative z-10">
+      <div className="container mx-auto px-6 grid lg:grid-cols-2 gap-16 items-center relative z-10">
         
-        {/* Left Side: Content */}
-        <div className="space-y-8 text-center md:text-left">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-green-500/10 border border-green-500/20 text-green-400 text-sm font-semibold animate-fade-in">
-            <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-            Simple • Fast • Reliable
+        {/* Left Side: Content Overhaul */}
+        <div className="space-y-10 text-center lg:text-left">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-green-500/10 border border-green-500/20 text-green-400 text-sm font-bold tracking-wide uppercase">
+            Built for Modern Indian Restaurants
           </div>
 
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight text-white">
-            Run Your Restaurant <span className="text-green-500">Faster</span> — Without Billing Mistakes
+          <h1 className="text-5xl md:text-6xl lg:text-7xl font-extrabold leading-[1.1] text-white tracking-tight drop-shadow-sm reveal-stagger">
+            Fastest Billing POS — <span className="text-green-500">Zero-Setup</span> Required
           </h1>
 
-          <p className="text-gray-400 text-lg md:text-xl max-w-xl leading-relaxed">
-            Take full control of your billing, table orders, and kitchen operations with the simplest POS built for busy Indian restaurants. No setup headaches, just results.
+          <p className="text-gray-300 text-lg md:text-xl max-w-xl leading-relaxed mx-auto lg:mx-0 reveal-stagger delay-100">
+            Effortlessly manage your billing, table orders, and kitchen operations with one simple interface. Built so you can start serving customers in minutes, not days.
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
+          <div className="flex flex-col sm:flex-row gap-5 justify-center lg:justify-start reveal-stagger delay-200">
             <Link 
-              to="/login" 
-              className="bg-green-500 hover:bg-green-600 text-black font-bold rounded-xl px-8 py-4 inline-flex items-center justify-center transition-all group"
+              to="/request-trial" 
+              className="bg-green-500 hover:bg-green-600 text-black font-bold text-lg rounded-2xl px-10 py-5 inline-flex items-center justify-center transition-all shadow-xl shadow-green-500/20 active:scale-95 btn-shimmer"
             >
               Start 14-Day Free Trial
-              <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+              <ArrowRight className="w-6 h-6 ml-3" />
             </Link>
             
             <Link 
               to="/login" 
-              className="bg-white/5 hover:bg-white/10 text-white font-semibold border border-white/10 rounded-xl px-8 py-4 inline-flex items-center justify-center transition-all"
+              className="bg-[#1E293B] hover:bg-[#2D3748] text-white font-bold text-lg border border-white/10 rounded-2xl px-10 py-5 inline-flex items-center justify-center transition-all shadow-xl shadow-black/20"
             >
-              <Play className="w-5 h-5 mr-2 fill-current" />
-              Book a Live Demo
+              <Play className="w-5 h-5 mr-3 fill-current" />
+              Book Live Demo
             </Link>
           </div>
 
-          {/* Trust Indicators */}
-          <div className="flex flex-wrap gap-x-6 gap-y-2 justify-center md:justify-start pt-4">
-            <div className="flex items-center gap-2 text-gray-400 text-sm">
-              <CheckCircle2 className="w-4 h-4 text-green-500" />
+          {/* Trust Elements Fix */}
+          <div className="flex flex-wrap gap-x-8 gap-y-3 justify-center lg:justify-start border-t border-white/5 pt-8">
+            <div className="flex items-center gap-2.5 text-gray-400 text-sm font-medium">
+              <CheckCircle2 className="w-5 h-5 text-green-500" />
+              10-Min Staff Training
+            </div>
+            <div className="flex items-center gap-2.5 text-gray-400 text-sm font-medium">
+              <CheckCircle2 className="w-5 h-5 text-green-500" />
               Free On-site Setup
             </div>
-            <div className="flex items-center gap-2 text-gray-400 text-sm">
-              <CheckCircle2 className="w-4 h-4 text-green-500" />
-              24/7 Phone Support
+            <div className="flex items-center gap-2.5 text-gray-400 text-sm font-medium">
+              <CheckCircle2 className="w-5 h-5 text-green-500" />
+              No Credit Card Needed
             </div>
           </div>
         </div>
 
-        {/* Right Side: Dashboard Mockup */}
-        <div className="relative group hidden md:block" style={{ perspective: '1000px' }}>
-          <div className="relative z-10 bg-slate-800/50 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl overflow-hidden transition-all duration-700 hover:rotate-0" style={{ transform: 'rotateY(-10deg) rotateX(5deg)' }}>
-            {/* Mockup Header */}
-            <div className="bg-[#0B0B0B] px-4 py-2 flex items-center gap-2 border-b border-white/5">
-              <div className="flex gap-1.5">
-                <div className="w-2.5 h-2.5 rounded-full bg-red-500/50" />
-                <div className="w-2.5 h-2.5 rounded-full bg-yellow-500/50" />
-                <div className="w-2.5 h-2.5 rounded-full bg-green-500/50" />
-              </div>
-              <div className="mx-auto text-[10px] text-gray-500 font-mono tracking-widest">ZENRESTRO ADMIN CONSOLE</div>
-            </div>
-            
-            {/* Mockup Content (Placeholder for Dashboard Image) */}
-            <div className="p-4 bg-[#0F172A] min-h-[400px] flex items-center justify-center relative">
-              <div className="space-y-6 w-full opacity-20">
-                <div className="flex gap-4">
-                  <div className="h-24 flex-1 bg-slate-800 rounded-lg animate-pulse" />
-                  <div className="h-24 flex-1 bg-slate-800 rounded-lg animate-pulse" />
-                  <div className="h-24 flex-1 bg-slate-800 rounded-lg animate-pulse" />
+        {/* Right Side: High-Engagement Visual */}
+        <div className="relative group perspective-1000">
+          <div className="relative z-10 p-2 bg-gradient-to-tr from-white/10 to-transparent rounded-3xl backdrop-blur-3xl shadow-2xl overflow-hidden transform group-hover:rotate-x-0 transition-all duration-1000 hover:scale-[1.02] animate-float">
+            {/* Real Product Screenshot Mockup Overlay */}
+            <div className="bg-[#0B0B0B] rounded-2xl overflow-hidden border border-white/5">
+                <div className="bg-[#111827] px-4 py-3 flex items-center justify-between border-b border-white/5">
+                  <div className="flex gap-2">
+                    <div className="w-3 h-3 rounded-full bg-red-400/30" />
+                    <div className="w-3 h-3 rounded-full bg-yellow-400/30" />
+                    <div className="w-3 h-3 rounded-full bg-green-400/30" />
+                  </div>
+                  <div className="text-[10px] text-gray-500 font-bold uppercase tracking-widest bg-black px-3 py-1 rounded-full">LIVE PREVIEW: BILLING SCREEN</div>
                 </div>
-                <div className="flex gap-4">
-                  <div className="h-48 w-1/3 bg-slate-800 rounded-lg animate-pulse" />
-                  <div className="h-48 w-2/3 bg-slate-800 rounded-lg animate-pulse" />
-                </div>
-              </div>
-              <div className="absolute inset-0 flex items-center justify-center z-20">
-                <div className="bg-green-500/20 text-green-400 px-6 py-3 rounded-lg border border-green-500/30 backdrop-blur-lg font-bold shadow-lg">
-                  DASHBOARD PREVIEW
-                </div>
-              </div>
+                
+                {/* The Generated Screenshot Content */}
+                <img 
+                  src="/images/billing-preview.png" 
+                  alt="ZenRestro Billing Dashboard Preview" 
+                  className="w-full object-cover min-h-[450px]"
+                />
             </div>
           </div>
           
-          {/* Mockup Soft Shadows & Glows */}
-          <div className="absolute -inset-1 bg-gradient-to-r from-green-500 to-emerald-500 rounded-2xl blur opacity-20 group-hover:opacity-30 transition-opacity" />
+          {/* Subtle Dynamic Glow Layer */}
+          <div className="absolute -inset-1 bg-green-500/20 rounded-[3rem] blur-2xl group-hover:opacity-40 transition-opacity pointer-events-none" />
+          <div className="absolute -top-10 -right-10 w-40 h-40 bg-green-500/10 rounded-full blur-[80px]" />
         </div>
 
       </div>

@@ -5,55 +5,59 @@ const FeaturesSection = () => {
   const featureCards = [
     {
       title: 'Billing POS',
-      description: 'Bill customers in seconds. Supports GST, discounts, and multiple payment modes (UPI, Cash, Card).',
-      icon: <ShoppingBag className="w-7 h-7" />
+      description: 'Generate bills in seconds. Built-in support for GST, discounts, and all UPI payments.',
+      icon: <ShoppingBag className="w-8 h-8" />
     },
     {
       title: 'Order Management',
-      description: 'Digital KOTs. Track every table status on one screen. No more paper slips lost in the wind.',
-      icon: <Clock className="w-7 h-7" />
+      description: 'Track table status and digital KOTs instantly. Zero paper, zero confusion.',
+      icon: <Clock className="w-8 h-8" />
     },
     {
-      title: 'Kitchen Display (KDS)',
-      description: 'Kitchen staff sees orders instantly. Reduce noise, reduce confusion, serve food faster.',
-      icon: <ChefHat className="w-7 h-7" />
+      title: 'Kitchen Display',
+      description: 'Direct kitchen-to-staff notifications. Reduce prep time by 30% during rush hour.',
+      icon: <ChefHat className="w-8 h-8" />
     },
     {
       title: 'Smart Inventory',
-      description: 'Know your stock before it runs out. Get automated alerts when specific ingredients are low.',
-      icon: <Database className="w-7 h-7" />
+      description: 'Automated stock alerts. Know exactly what to buy before you run out.',
+      icon: <Database className="w-8 h-8" />
     },
     {
-      title: 'Real-time Reports',
-      description: 'Get daily sales summaries directly on your WhatsApp. No need to open the laptop.',
-      icon: <TrendingUp className="w-7 h-7" />
+      title: 'Daily Reports',
+      description: 'Get daily sales summaries delivered directly to your WhatsApp every night.',
+      icon: <TrendingUp className="w-8 h-8" />
     },
     {
-      title: 'Lightning Performance',
-      description: 'Sub-second processing. Works from anywhere, even on mobile or tablets.',
-      icon: <Zap className="w-7 h-7" />
+      title: 'Offline Mode',
+      description: 'Internet down? No problem. Keep billing offline and sync automatically later.',
+      icon: <Zap className="w-8 h-8" />
     }
   ];
 
   return (
-    <section id="features" className="py-24 bg-[#0F172A]">
+    <section id="features" className="py-24 bg-[#0B0B0B]">
       <div className="container mx-auto px-6">
-        <div className="text-center max-w-3xl mx-auto mb-20">
-          <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
-            Everything You Need, <span className="text-green-500">Nothing You Don't.</span>
+        <div className="max-w-3xl mb-16 text-center md:text-left">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-green-500/10 border border-green-500/20 text-green-400 text-xs font-bold tracking-widest uppercase mb-6">
+            Core Business Tools
+          </div>
+          <h2 className="text-4xl md:text-5xl font-extrabold text-white mb-6 leading-tight">
+            Everything You Need to <br/>
+            <span className="text-green-500">Scale Your Restaurant.</span>
           </h2>
-          <p className="text-gray-400 text-lg md:text-xl">
-            Powerful features designed for utility and speed, not complexity. Built to scale your restaurant business efficiently.
+          <p className="text-gray-400 text-lg md:text-xl leading-relaxed">
+            We removed the complicated enterprise features and kept only what actually helps you serve food faster and make more profit.
           </p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-8">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
           {featureCards.map((feature, idx) => (
-            <div key={idx} className="group p-10 rounded-3xl bg-white/5 border border-white/5 hover:border-green-500/20 hover:bg-white/[0.07] transition-all">
-              <div className="w-16 h-16 rounded-2xl bg-green-500/10 flex items-center justify-center mb-8 text-green-500 group-hover:bg-green-500 group-hover:text-black shadow-lg shadow-green-500/5 group-hover:shadow-green-500/20 transition-all">
+            <div key={idx} className={`group p-10 rounded-2xl bg-[#0F172A] border border-white/5 hover:border-green-500/30 hover:bg-[#1E293B] transition-all duration-300 reveal-stagger delay-${(idx + 1) * 100}`}>
+              <div className="w-16 h-16 rounded-2xl bg-green-500 flex items-center justify-center mb-8 text-black shadow-lg shadow-green-500/20 transform group-hover:-translate-y-1 transition-transform">
                 {feature.icon}
               </div>
-              <h3 className="text-2xl font-bold text-white mb-4">{feature.title}</h3>
+              <h3 className="text-2xl font-bold text-white mb-4 tracking-tight">{feature.title}</h3>
               <p className="text-gray-400 leading-relaxed text-lg">
                 {feature.description}
               </p>

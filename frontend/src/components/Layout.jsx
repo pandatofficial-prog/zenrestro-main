@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useQuery } from '@tanstack/react-query';
 import {
   LayoutDashboard,
   ShoppingBag,
@@ -18,12 +19,29 @@ import {
   Shield,
   Monitor,
   Armchair,
+  UserPlus,
 } from 'lucide-react';
+import api from '../services/api';
 import TrialBanner from './TrialBanner';
 
 const Layout = ({ children }) => {
+  const { user, logout } = useAuth();
+  const location = useLocation();
+  const navigate = useNavigate();
+  
   const [sidebarOpen, setSidebarOpen] = useState(window.innerWidth >= 1024);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
+
+  // Real-time badge for Superadmin leads
+  const { data: pendingCount } = useQuery({
+    queryKey: ['pendingTrialCount'],
+    queryFn: async () => {
+      const res = await api.get('/trial-requests');
+      return res.data.filter(r => r.status === 'pending').length;
+    },
+    enabled: user?.role === 'superadmin',
+    refetchInterval: 60000, 
+  });
 
   useEffect(() => {
     const checkMobile = () => {
@@ -38,9 +56,6 @@ const Layout = ({ children }) => {
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
-  const { user, logout } = useAuth();
-  const location = useLocation();
-  const navigate = useNavigate();
 
   const isSubscriptionActive = user?.role === 'superadmin' ||
     (['active', 'trial'].includes(user?.restaurant?.subscriptionStatus));
@@ -62,15 +77,15 @@ const Layout = ({ children }) => {
     { icon: CreditCard, label: 'Subscriptions', path: '/superadmin/subscriptions' },
     { icon: ShoppingBag, label: 'Users', path: '/superadmin/users' },
     { icon: BarChart3, label: 'Reports', path: '/superadmin/reports' },
+    { icon: UserPlus, label: 'Trial Requests', path: '/superadmin/trial-requests' },
     { icon: Settings, label: 'Settings', path: '/superadmin/settings' },
   ];
 
   let menuItems = user?.role === 'superadmin' ? superadminMenuItems : adminMenuItems;
 
-  // Filter menu items if subscription is not active (for admins only)
   if (user?.role === 'admin' && !isSubscriptionActive) {
     menuItems = adminMenuItems.filter(item =>
-      ['Subscription', 'Settings', 'Policy'].includes(item.label)
+      ['Subscription', 'Settings'].includes(item.label)
     );
   }
 
@@ -80,44 +95,25 @@ const Layout = ({ children }) => {
   };
 
   return (
-    <div className="flex h-screen bg-gray-100">
-      {/* Mobile Overlay */}
+    <div className="flex h-screen bg-gray-100 font-sans">
       {isMobile && sidebarOpen && (
-        <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-40"
-          onClick={() => setSidebarOpen(false)}
-        />
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-40" onClick={() => setSidebarOpen(false)} />
       )}
 
       {/* Sidebar */}
-      <aside
-        className={`${isMobile
-          ? `fixed inset-y-0 left-0 z-50 w-64 transform ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-          }`
-          : sidebarOpen ? 'w-64' : 'w-20'
-          } bg-dark text-white transition-all duration-300 flex flex-col shadow-xl z-20`}
-      >
-        {/* Logo */}
-        <div className="h-16 flex items-center justify-between px-4 border-b border-gray-700">
+      <aside className={`${isMobile ? `fixed inset-y-0 left-0 z-50 w-64 transform ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}` : sidebarOpen ? 'w-64' : 'w-20'} bg-[#0f172a] text-white transition-all duration-300 flex flex-col shadow-xl z-20`}>
+        <div className="h-16 flex items-center justify-between px-4 border-b border-slate-800">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center">
-              <ChefHat className="w-5 h-5 text-white" />
+            <div className="w-10 h-10 bg-green-500 rounded-xl flex items-center justify-center shadow-lg shadow-green-500/20">
+              <ChefHat className="w-6 h-6 text-black" />
             </div>
-            {sidebarOpen && (
-              <span className="font-bold text-lg">{user?.role === 'superadmin' ? 'ZenRestro' : user?.restaurant?.name || 'Admin'}</span>
-            )}
+            {sidebarOpen && <span className="font-black text-xl tracking-tighter uppercase">{user?.role === 'superadmin' ? 'ZenRestro' : 'Admin'}</span>}
           </div>
-          <button
-            onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="lg:hidden"
-          >
-            <X size={20} />
-          </button>
+          <button onClick={() => setSidebarOpen(!sidebarOpen)} className="lg:hidden text-slate-400 hover:text-white"><X size={20} /></button>
         </div>
 
-        {/* Menu */}
-        <nav className="flex-1 py-4 overflow-y-auto">
-          <ul className="space-y-1 px-2">
+        <nav className="flex-1 py-6 overflow-y-auto">
+          <ul className="space-y-1 px-3">
             {menuItems.map((item) => {
               const Icon = item.icon;
               const isActive = location.pathname === item.path;
@@ -125,13 +121,17 @@ const Layout = ({ children }) => {
                 <li key={item.path}>
                   <Link
                     to={item.path}
-                    className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${isActive
-                      ? 'bg-primary text-white'
-                      : 'text-gray-300 hover:bg-gray-800 hover:text-white'
-                      }`}
+                    className={`flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-200 group ${isActive ? 'bg-green-500 text-black font-bold shadow-lg shadow-green-500/10' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}
                   >
-                    <Icon size={20} />
-                    {sidebarOpen && <span>{item.label}</span>}
+                    <div className="flex items-center gap-3">
+                      <Icon size={20} className={isActive ? 'text-black' : 'text-slate-500 group-hover:text-green-500'} />
+                      {sidebarOpen && <span className="text-sm font-bold tracking-tight">{item.label}</span>}
+                    </div>
+                    {sidebarOpen && item.label === 'Trial Requests' && pendingCount > 0 && (
+                      <span className="bg-red-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full animate-pulse shadow-lg shadow-red-500/20">
+                        {pendingCount}
+                      </span>
+                    )}
                   </Link>
                 </li>
               );
@@ -139,55 +139,39 @@ const Layout = ({ children }) => {
           </ul>
         </nav>
 
-        {/* User & Logout */}
-        <div className="p-4 border-t border-gray-700">
+        <div className="p-4 border-t border-slate-800 bg-slate-900/50">
           <div className={`flex items-center ${sidebarOpen ? 'justify-between' : 'justify-center'}`}>
             {sidebarOpen && (
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
-                  <span className="text-sm font-medium">
-                    {user?.name?.charAt(0).toUpperCase()}
-                  </span>
-                </div>
+                <div className="w-10 h-10 bg-slate-800 border border-slate-700 rounded-xl flex items-center justify-center font-black text-slate-300">{user?.name?.charAt(0)}</div>
                 <div className="overflow-hidden">
-                  <p className="text-sm font-medium truncate">{user?.name}</p>
-                  <p className="text-xs text-gray-400 truncate">{user?.email}</p>
+                  <p className="text-sm font-bold truncate text-slate-200">{user?.name}</p>
+                  <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest truncate">{user?.role}</p>
                 </div>
               </div>
             )}
-            <button
-              onClick={handleLogout}
-              className="p-2 hover:bg-gray-800 rounded-lg text-gray-300 hover:text-white transition-colors"
-              title="Logout"
-            >
-              <LogOut size={20} />
-            </button>
+            <button onClick={handleLogout} className="p-2 hover:bg-red-500/10 rounded-xl text-slate-400 hover:text-red-500 transition-colors" title="Logout"><LogOut size={22} /></button>
           </div>
         </div>
       </aside>
 
-      {/* Main Content */}
-      <div className={`flex-1 flex flex-col overflow-hidden ${isMobile ? 'w-full' : ''}`}>
+      <div className="flex-1 flex flex-col overflow-hidden">
         <TrialBanner />
-        {/* Header */}
-        <header className="h-16 bg-white shadow-sm flex items-center justify-between px-4 lg:px-6">
-          <button
-            onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="p-2 hover:bg-gray-100 rounded-lg"
-          >
-            <Menu size={20} />
-          </button>
-
+        <header className="h-16 bg-white border-b border-slate-100 flex items-center justify-between px-6">
+          <button onClick={() => setSidebarOpen(!sidebarOpen)} className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-50 rounded-xl transition-all"><Menu size={22} /></button>
           <div className="flex items-center gap-4">
-            <button className="p-2 hover:bg-gray-100 rounded-lg relative">
-              <Bell size={20} className="text-gray-600" />
-              <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+            <div className="hidden md:flex flex-col items-end mr-2">
+              <p className="text-xs font-black text-slate-400 uppercase tracking-widest">Active Restaurant</p>
+              <p className="text-sm font-bold text-slate-700">{user?.restaurant?.name || 'ZenRestro HQ'}</p>
+            </div>
+            <button className="p-2 bg-slate-50 text-slate-400 hover:text-primary rounded-xl relative transition-all group">
+              <Bell size={20} />
+              <span className="absolute top-2 right-2 w-2 h-2 bg-orange-500 rounded-full border-2 border-white"></span>
             </button>
           </div>
         </header>
 
-        {/* Page Content */}
-        <main className="flex-1 overflow-y-auto p-4 lg:p-6">
+        <main className="flex-1 overflow-y-auto p-8 lg:p-10 bg-slate-50/50">
           {children}
         </main>
       </div>

@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api, { reportsAPI, ordersAPI } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import {
@@ -19,40 +20,21 @@ import Layout from '../components/Layout';
 
 const Dashboard = () => {
   const { user } = useAuth();
-  const [stats, setStats] = useState(null);
-  const [todayStats, setTodayStats] = useState(null);
-  const [recentOrders, setRecentOrders] = useState([]);
-  const [weeklyData, setWeeklyData] = useState([]);
-  const [topItems, setTopItems] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [restaurant, setRestaurant] = useState(null);
+  const queryClient = useQueryClient();
   const [lastUpdated, setLastUpdated] = useState(new Date());
-  const [isRefreshing, setIsRefreshing] = useState(false);
 
-  useEffect(() => {
-    fetchData();
-    fetchRestaurant();
-    // Auto-refresh every 10 seconds
-    const interval = setInterval(() => {
-      fetchData(true);
-      fetchRestaurant(true);
-    }, 10000);
-    return () => clearInterval(interval);
-  }, []);
+  // React Query Fetchers
+  const { data: restaurant, isLoading: isRestaurantLoading } = useQuery({
+    queryKey: ['restaurant', user.restaurantId],
+    queryFn: async () => {
+      const res = await api.get(`/restaurants/${user.restaurantId}`);
+      return res.data;
+    },
+  });
 
-  const fetchRestaurant = async (silent = false) => {
-    try {
-      const response = await api.get(`/restaurants/${user.restaurantId}`);
-      setRestaurant(response.data);
-    } catch (error) {
-      console.error('Error fetching restaurant:', error);
-    }
-  };
-
-  const fetchData = async (silent = false) => {
-    if (!silent) setLoading(true);
-    setIsRefreshing(true);
-    try {
+  const { data: dashboardData, isLoading: isDataLoading, isRefetching } = useQuery({
+    queryKey: ['dashboardStats'],
+    queryFn: async () => {
       const [summaryRes, todayRes, ordersRes, weeklyRes, topItemsRes] = await Promise.all([
         reportsAPI.getSummary(),
         ordersAPI.getTodayStats(),
@@ -60,28 +42,35 @@ const Dashboard = () => {
         reportsAPI.getWeekly(),
         reportsAPI.getTopItems({ limit: 5 }),
       ]);
-      setStats(summaryRes.data);
-      setTodayStats(todayRes.data);
-      setRecentOrders(ordersRes.data.orders);
-      setWeeklyData(weeklyRes.data?.dailyData || []);
-      setTopItems(topItemsRes.data || []);
       setLastUpdated(new Date());
-    } catch (error) {
-      console.error('Error fetching dashboard data:', error);
-    } finally {
-      if (!silent) setLoading(false);
-      setIsRefreshing(false);
-    }
+      return {
+        stats: summaryRes.data,
+        todayStats: todayRes.data,
+        recentOrders: ordersRes.data.orders,
+        weeklyData: weeklyRes.data?.dailyData || [],
+        topItems: topItemsRes.data || [],
+      };
+    },
+    refetchInterval: 15000, // Auto-refresh every 15 seconds
+  });
+
+  const updateStatusMutation = useMutation({
+    mutationFn: ({ orderId, status }) => ordersAPI.updateStatus(orderId, status),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['dashboardStats']);
+    },
+  });
+
+  const handleStatusUpdate = (orderId, newStatus) => {
+    updateStatusMutation.mutate({ orderId, status: newStatus });
   };
 
-  const handleStatusUpdate = async (orderId, newStatus) => {
-    try {
-      await ordersAPI.updateStatus(orderId, newStatus);
-      fetchData(true);
-    } catch (error) {
-      console.error('Error updating status:', error);
-      alert('Failed to update status');
-    }
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+      minimumFractionDigits: 0,
+    }).format(amount || 0);
   };
 
   const getStatusBadge = (status) => {
@@ -95,347 +84,147 @@ const Dashboard = () => {
     return badges[status] || 'badge-pending';
   };
 
-  const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR',
-      minimumFractionDigits: 0,
-    }).format(amount);
-  };
-
-  if (loading) {
+  if (isDataLoading || isRestaurantLoading) {
     return (
       <Layout>
-        <div className="flex items-center justify-center h-64">
+        <div className="flex flex-col items-center justify-center h-64 space-y-4">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+          <p className="text-gray-500 animate-pulse text-sm font-bold uppercase tracking-widest">Optimizing Dashboard...</p>
         </div>
       </Layout>
     );
   }
 
+  const { stats, todayStats, recentOrders, weeklyData, topItems } = dashboardData;
   const isExpired = restaurant?.subscriptionExpires && new Date(restaurant.subscriptionExpires) < new Date();
-  const isTrial = restaurant?.subscriptionStatus === 'trialing';
+  const isTrial = restaurant?.subscriptionStatus === 'trial';
 
   return (
     <Layout>
       <div className="space-y-6 animate-fadeIn">
-        {/* Subscription Alert */}
+        {/* Alerts */}
         {isExpired && (
-          <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-r-lg flex items-center justify-between mb-6 shadow-sm">
-            <div className="flex items-center gap-3">
-              <AlertTriangle className="text-red-500" size={24} />
-              <div>
-                <p className="font-bold text-red-800">Subscription Expired!</p>
-                <p className="text-sm text-red-700">Please renew your subscription to avoid service interruption.</p>
-              </div>
+          <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-r-lg flex items-center justify-between shadow-sm">
+            <div className="flex items-center gap-3 text-red-800 font-bold">
+              <AlertTriangle size={24} />
+              <p>Subscription Expired! Please renew to avoid service interruption.</p>
             </div>
-            <Link 
-              to="/admin/subscription" 
-              className="bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-red-700 transition"
-            >
-              Renew Now
-            </Link>
-          </div>
-        )}
-
-        {!isExpired && isTrial && (
-          <div className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r-lg flex items-center justify-between mb-6 shadow-sm">
-            <div className="flex items-center gap-3">
-              <AlertCircle className="text-blue-500" size={24} />
-              <div>
-                <p className="font-bold text-blue-800">Using Free Trial</p>
-                <p className="text-sm text-blue-700">Your trial ends on {new Date(restaurant?.subscriptionExpires).toLocaleDateString()}.</p>
-              </div>
-            </div>
-            <Link 
-              to="/admin/subscription" 
-              className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-blue-700 transition"
-            >
-              Upgrade Plan
-            </Link>
+            <Link to="/admin/subscription" className="bg-red-600 text-white px-5 py-2 rounded-xl text-sm font-bold">Renew Now</Link>
           </div>
         )}
 
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-dark flex items-center gap-3">
+            <h1 className="text-3xl font-black text-slate-800 tracking-tight flex items-center gap-3 uppercase">
               Dashboard
-              {isRefreshing && (
-                <span className="flex h-2 w-2 relative">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+              {isRefetching && (
+                <span className="flex h-3 w-3 relative">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-500 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
                 </span>
               )}
             </h1>
-            <p className="text-sm text-gray-500">
-              Last updated: {lastUpdated.toLocaleTimeString()}
+            <p className="text-xs font-bold text-gray-500 uppercase tracking-widest">
+              Last synced: {lastUpdated.toLocaleTimeString()}
             </p>
           </div>
           <button
-            onClick={() => fetchData()}
-            className="btn btn-secondary flex items-center gap-2"
-            title="Refresh Dashboard"
+            onClick={() => queryClient.invalidateQueries(['dashboardStats'])}
+            className="flex items-center gap-2 px-6 py-2 bg-slate-800 text-white rounded-xl font-bold hover:bg-slate-700 transition-all text-sm uppercase tracking-wider shadow-lg shadow-black/10"
           >
-            <RefreshCw size={18} className={isRefreshing ? 'animate-spin' : ''} />
-            Refresh
+            <RefreshCw size={18} className={isRefetching ? 'animate-spin' : ''} />
+            Instant Sync
           </button>
         </div>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {/* Today's Orders */}
-          <div className="card">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-500">Today's Orders</p>
-                <p className="text-2xl font-bold text-dark">{todayStats?.totalOrders || 0}</p>
-              </div>
-              <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
-                <ShoppingBag className="w-6 h-6 text-primary" />
-              </div>
-            </div>
-            <div className="mt-2 text-sm text-green-600 flex items-center gap-1">
-              <TrendingUp size={16} />
-              <span>{todayStats?.byType?.dine_in || 0} Dine In</span>
-            </div>
-          </div>
-
-          {/* Today's Revenue */}
-          <div className="card">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-500">Today's Revenue</p>
-                <p className="text-2xl font-bold text-dark">{formatCurrency(todayStats?.potentialRevenue || 0)}</p>
-              </div>
-              <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-                <DollarSign className="w-6 h-6 text-green-600" />
-              </div>
-            </div>
-            <div className="mt-2 text-xs flex justify-between">
-              <span className="text-green-600 font-medium">Paid: {formatCurrency(todayStats?.paidRevenue || 0)}</span>
-              <span className="text-orange-600 font-medium">Unpaid: {formatCurrency((todayStats?.potentialRevenue || 0) - (todayStats?.paidRevenue || 0))}</span>
-            </div>
-          </div>
-
-          {/* Pending Orders */}
-          <div className="card">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-500">In Progress</p>
-                <p className="text-2xl font-bold text-dark">
-                  {(todayStats?.pendingOrders || 0) + (todayStats?.preparingOrders || 0)}
-                </p>
-              </div>
-              <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                <Clock className="w-6 h-6 text-blue-600" />
-              </div>
-            </div>
-            <div className="mt-2 text-sm text-gray-500">
-              {todayStats?.pendingOrders || 0} pending, {todayStats?.preparingOrders || 0} preparing
-            </div>
-          </div>
-
-          {/* Low Stock */}
-          <div className="card">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-500">Low Stock Items</p>
-                <p className="text-2xl font-bold text-dark">{stats?.lowStockCount || 0}</p>
-              </div>
-              <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
-                <AlertTriangle className="w-6 h-6 text-red-600" />
-              </div>
-            </div>
-            <div className="mt-2 text-sm text-gray-500">
-              Needs attention
-            </div>
-          </div>
+        {/* Stats Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <Card icon={<ShoppingBag />} label="Today's Orders" value={todayStats?.totalOrders} accent="orange" sub={`${todayStats?.byType?.dine_in || 0} Dine In`} />
+          <Card icon={<DollarSign />} label="Today's Revenue" value={formatCurrency(todayStats?.potentialRevenue)} accent="green" sub={`Paid: ${formatCurrency(todayStats?.paidRevenue)}`} />
+          <Card icon={<Clock />} label="In Progress" value={(todayStats?.pendingOrders || 0) + (todayStats?.preparingOrders || 0)} accent="blue" sub={`${todayStats?.pendingOrders || 0} pending, ${todayStats?.preparingOrders || 0} prep`} />
+          <Card icon={<AlertTriangle />} label="Low Stock" value={stats?.lowStockCount} accent="red" sub="Needs Attention" />
         </div>
 
-        {/* Orders by Type & Status */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          {/* Orders by Type */}
-          <div className="card">
-            <h3 className="font-semibold text-lg mb-4">Orders by Type</h3>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <Utensils className="w-5 h-5 text-primary" />
-                  <span>Dine In</span>
-                </div>
-                <span className="font-semibold">{todayStats?.byType?.dine_in || 0}</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <ShoppingBag className="w-5 h-5 text-blue-600" />
-                  <span>Take Away</span>
-                </div>
-                <span className="font-semibold">{todayStats?.byType?.take_away || 0}</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <DollarSign className="w-5 h-5 text-green-600" />
-                  <span>Delivery</span>
-                </div>
-                <span className="font-semibold">{todayStats?.byType?.delivery || 0}</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Orders by Status */}
-          <div className="card">
-            <h3 className="font-semibold text-lg mb-4">Order Status</h3>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <Clock className="w-5 h-5 text-yellow-600" />
-                  <span>Pending</span>
-                </div>
-                <span className="font-semibold">{todayStats?.byStatus?.pending || 0}</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <Clock className="w-5 h-5 text-blue-600" />
-                  <span>Preparing</span>
-                </div>
-                <span className="font-semibold">{todayStats?.byStatus?.preparing || 0}</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <CheckCircle className="w-5 h-5 text-green-600" />
-                  <span>Delivered</span>
-                </div>
-                <span className="font-semibold">{todayStats?.byStatus?.delivered || 0}</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <XCircle className="w-5 h-5 text-red-600" />
-                  <span>Cancelled</span>
-                </div>
-                <span className="font-semibold">{todayStats?.byStatus?.cancelled || 0}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Charts and Top Items */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-          {/* Revenue Bar Chart */}
-          <div className="card lg:col-span-2">
-            <h3 className="font-semibold text-lg mb-4">7-Day Revenue Trend</h3>
-            <div className="h-64 w-full">
+        {/* Charts & Status */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2 bg-white rounded-2xl p-8 border border-slate-100 shadow-sm">
+            <h3 className="text-lg font-bold text-slate-800 uppercase tracking-widest mb-6">7-Day Revenue Trend</h3>
+            <div className="h-72 w-full">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={weeklyData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
-                  <XAxis 
-                    dataKey="date" 
-                    tickFormatter={(str) => {
-                      const d = new Date(str);
-                      return `${d.getDate()}/${d.getMonth()+1}`;
-                    }} 
-                    axisLine={false}
-                    tickLine={false}
-                    tick={{ fill: '#6B7280', fontSize: 12 }}
-                    dy={10}
-                  />
-                  <YAxis 
-                    tickFormatter={(val) => `₹${val}`} 
-                    axisLine={false}
-                    tickLine={false}
-                    tick={{ fill: '#6B7280', fontSize: 12 }}
-                  />
-                  <Tooltip 
-                    formatter={(value) => [`₹${value}`, 'Revenue']} 
-                    labelFormatter={(label) => new Date(label).toLocaleDateString('en-IN', { weekday: 'short', month: 'short', day: 'numeric' })}
-                    cursor={{ fill: '#F3F4F6' }}
-                    contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                  />
-                  <Bar dataKey="revenue" fill="#4F46E5" radius={[4, 4, 0, 0]} maxBarSize={50} />
+                <BarChart data={weeklyData}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                  <XAxis dataKey="date" tickFormatter={(str) => {
+                    const d = new Date(str);
+                    return `${d.getDate()}/${d.getMonth()+1}`;
+                  }} axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 11, fontWeight: 'bold' }} />
+                  <YAxis tickFormatter={(val) => `₹${val}`} axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 11, fontWeight: 'bold' }} />
+                  <Tooltip cursor={{ fill: '#f8fafc' }} contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)' }} />
+                  <Bar dataKey="revenue" fill="#22c55e" radius={[6, 6, 0, 0]} maxBarSize={40} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
           </div>
-          
-          {/* Top 5 Items */}
-          <div className="card">
-            <h3 className="font-semibold text-lg mb-4">Top 5 Items (Week)</h3>
-            <div className="space-y-3 mt-2">
+
+          <div className="bg-white rounded-2xl p-8 border border-slate-100 shadow-sm">
+            <h3 className="text-lg font-bold text-slate-800 uppercase tracking-widest mb-6">Top Items (Week)</h3>
+            <div className="space-y-4">
               {topItems.length > 0 ? topItems.map((item, idx) => (
-                <div key={idx} className="flex items-center justify-between border-b border-gray-100 last:border-0 pb-3 last:pb-0">
-                  <div className="flex items-center gap-3">
-                    <div className="h-8 w-8 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-sm">
-                      #{idx + 1}
-                    </div>
+                <div key={idx} className="flex items-center justify-between group">
+                  <div className="flex items-center gap-4">
+                    <div className="h-10 w-10 rounded-xl bg-slate-50 flex items-center justify-center font-black text-slate-400 text-xs">#{idx+1}</div>
                     <div>
-                      <p className="font-medium text-sm text-gray-800 line-clamp-1" title={item.name}>{item.name}</p>
-                      <p className="text-xs text-gray-500 font-medium">{item.quantity} sold</p>
+                      <p className="font-bold text-slate-700 text-sm line-clamp-1">{item.name}</p>
+                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{item.quantity} sold</p>
                     </div>
                   </div>
-                  <span className="font-bold text-sm text-dark">{formatCurrency(item.revenue)}</span>
+                  <span className="font-black text-green-600 text-sm">{formatCurrency(item.revenue)}</span>
                 </div>
-              )) : (
-                <div className="flex flex-col items-center justify-center py-8 text-gray-400">
-                  <Utensils size={32} className="mb-2 opacity-20" />
-                  <p className="text-sm">No sales data recorded yet.</p>
-                </div>
-              )}
+              )) : <p className="text-center text-slate-400 text-sm py-12">No data yet.</p>}
             </div>
           </div>
         </div>
 
         {/* Recent Orders */}
-        <div className="card">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="font-semibold text-lg">Recent Orders</h3>
-            <Link to="/admin/orders" className="text-primary hover:underline text-sm">
-              View All
-            </Link>
+        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+          <div className="p-8 border-b border-slate-50 flex items-center justify-between">
+            <h3 className="text-lg font-bold text-slate-800 uppercase tracking-widest">Recent Orders</h3>
+            <Link to="/admin/orders" className="text-green-600 font-bold text-xs uppercase tracking-widest hover:underline">View Ledger</Link>
           </div>
           <div className="overflow-x-auto">
-            <table className="table">
-              <thead>
+            <table className="w-full text-left">
+              <thead className="bg-slate-50">
                 <tr>
-                  <th>Order ID</th>
-                  <th>Type</th>
-                  <th>Table</th>
-                  <th>Customer</th>
-                  <th>Total</th>
-                  <th>Status</th>
-                  <th>Time</th>
+                  <th className="px-8 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest">Order</th>
+                  <th className="px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest">Type</th>
+                  <th className="px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest">Table</th>
+                  <th className="px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest">Total</th>
+                  <th className="px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest">Status</th>
+                  <th className="px-8 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest">Time</th>
                 </tr>
               </thead>
-              <tbody>
-                {recentOrders.length > 0 ? (
-                  recentOrders.map((order) => (
-                    <tr key={order._id}>
-                      <td className="font-medium">#{order._id.slice(-6).toUpperCase()}</td>
-                      <td className="capitalize">{order.orderType.replace('_', ' ')}</td>
-                      <td className="font-medium">{order.tableNumber || '-'}</td>
-                      <td>{order.customerName || '-'}</td>
-                      <td className="font-medium">{formatCurrency(order.total)}</td>
-                      <td>
-                        <select 
-                          value={order.status}
-                          onChange={(e) => handleStatusUpdate(order._id, e.target.value)}
-                          className={`text-xs font-semibold rounded px-2 py-1 border-none focus:ring-1 focus:ring-primary ${getStatusBadge(order.status)}`}
-                        >
-                          <option value="pending">Pending</option>
-                          <option value="preparing">Preparing</option>
-                          <option value="ready">Ready</option>
-                          <option value="delivered">Delivered</option>
-                          <option value="cancelled">Cancelled</option>
-                        </select>
-                      </td>
-                      <td>{new Date(order.createdAt).toLocaleTimeString()}</td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan="6" className="text-center py-4 text-gray-500">
-                      No orders yet
+              <tbody className="divide-y divide-slate-50">
+                {recentOrders.map((order) => (
+                  <tr key={order._id} className="hover:bg-slate-50 transition-colors">
+                    <td className="px-8 py-5 font-black text-slate-800 text-sm">#{order._id.slice(-6).toUpperCase()}</td>
+                    <td className="px-6 py-5 text-sm font-bold text-slate-600 capitalize">{order.orderType.replace('_', ' ')}</td>
+                    <td className="px-6 py-5 text-sm text-slate-600 font-black">{order.tableNumber || '--'}</td>
+                    <td className="px-6 py-5 text-sm font-black text-slate-900">{formatCurrency(order.total)}</td>
+                    <td className="px-6 py-5">
+                      <select 
+                        value={order.status}
+                        onChange={(e) => handleStatusUpdate(order._id, e.target.value)}
+                        className={`text-[10px] font-black uppercase tracking-widest rounded-lg px-3 py-1.5 border-none ring-1 ring-slate-100 ${getStatusBadge(order.status)}`}
+                      >
+                        <option value="pending">Pending</option>
+                        <option value="preparing">Preparing</option>
+                        <option value="ready">Ready</option>
+                        <option value="delivered">Delivered</option>
+                        <option value="cancelled">Cancelled</option>
+                      </select>
                     </td>
+                    <td className="px-8 py-5 text-xs font-bold text-slate-400">{new Date(order.createdAt).toLocaleTimeString()}</td>
                   </tr>
-                )}
+                ))}
               </tbody>
             </table>
           </div>
@@ -444,5 +233,20 @@ const Dashboard = () => {
     </Layout>
   );
 };
+
+const Card = ({ icon, label, value, accent, sub }) => (
+  <div className="bg-white p-8 rounded-2xl border border-slate-100 shadow-sm group hover:scale-[1.02] transition-all">
+    <div className="flex items-center justify-between mb-4">
+      <div>
+        <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">{label}</p>
+        <p className="text-3xl font-black text-slate-800 tracking-tighter">{value}</p>
+      </div>
+      <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-white shadow-xl shadow-${accent}-500/20 bg-${accent}-500`}>
+        {icon}
+      </div>
+    </div>
+    <div className="text-[11px] font-bold text-slate-500 uppercase tracking-widest">{sub}</div>
+  </div>
+);
 
 export default Dashboard;

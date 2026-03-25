@@ -103,50 +103,67 @@ const ZenRestroLanding = () => {
         </div>
       </section>
 
-      {/* Pricing Section */}
-      <section id="pricing" className="py-24 bg-[#0B0B0B]">
-        <div className="container mx-auto px-6 text-center">
-          <div className="mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">One Simple Plan. <span className="text-green-500">No Hidden Charges.</span></h2>
-            <p className="text-gray-400 text-lg">Get everything ZenRestro has to offer with one transparent price.</p>
+      {/* Pricing Section - High-Contrast Redesign */}
+      <section id="pricing" className="py-24 bg-[#0F172A] border-y border-white/5">
+        <div className="container mx-auto px-6">
+          <div className="text-center mb-20 max-w-2xl mx-auto">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-green-500/10 border border-green-500/20 text-green-400 text-xs font-bold tracking-widest uppercase mb-6">
+              One Price, Unlimited Access
+            </div>
+            <h2 className="text-4xl md:text-5xl font-extrabold text-white mb-6 leading-tight">
+              One Simple Plan. <span className="text-green-500">No Hidden Fees.</span>
+            </h2>
+            <p className="text-gray-400 text-lg md:text-xl">
+              Get everything ZenRestro has to offer for one transparent cost. No per-order commissions. No hidden charges.
+            </p>
           </div>
 
-          <div className="max-w-lg mx-auto p-12 rounded-[2.5rem] bg-white/5 border border-white/10 relative overflow-hidden group hover:border-green-500/30 transition-all shadow-2xl">
-             <div className="absolute top-0 right-0 bg-green-500 text-black text-[10px] font-bold px-4 py-1 rounded-bl-xl uppercase tracking-widest">Recommended</div>
-             
-             <h3 className="text-2xl font-bold text-gray-400 mb-2 uppercase tracking-widest">Ultimate POS</h3>
-             <div className="text-6xl font-bold text-white mb-4">₹5,999<span className="text-lg text-gray-500 font-normal">/year</span></div>
-             
-             <div className="bg-green-500/10 text-green-500 py-3 rounded-2xl font-bold text-sm mb-10 border border-green-500/20">
-                + ₹20,000 One-time Setup Fee
-             </div>
+          <div className="max-w-xl mx-auto reveal-stagger delay-300">
+            <div className="relative p-12 rounded-[2rem] bg-[#0B0B0B] border border-white/5 shadow-2xl overflow-hidden group hover:border-green-500/30 hover:scale-[1.01] transition-all duration-500">
+              <div className="absolute top-0 right-0 bg-green-500 text-black text-[10px] font-extrabold px-6 py-2 rounded-bl-2xl uppercase tracking-[0.2em] shadow-lg">Recommended</div>
+              
+              <div className="space-y-2 mb-10">
+                <h3 className="text-xl font-bold text-gray-400 uppercase tracking-[0.2em]">Ultimate POS</h3>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-7xl font-extrabold text-white tracking-tighter">₹5,999</span>
+                  <span className="text-lg text-gray-500 font-bold uppercase tracking-widest">/Yearly</span>
+                </div>
+              </div>
 
-             <ul className="space-y-5 text-left mb-12">
-                <li className="flex items-center gap-4 text-gray-300">
-                   <CheckCircle2 className="w-5 h-5 text-green-500" />
-                   <span>Unlimited Orders & Tokens</span>
-                </li>
-                <li className="flex items-center gap-4 text-gray-300">
-                   <CheckCircle2 className="w-5 h-5 text-green-500" />
-                   <span>WhatsApp Billing & Reports</span>
-                </li>
-                <li className="flex items-center gap-4 text-gray-300">
-                   <CheckCircle2 className="w-5 h-5 text-green-500" />
-                   <span>Full KDS & Inventory System</span>
-                </li>
-                <li className="flex items-center gap-4 text-gray-300">
-                   <CheckCircle2 className="w-5 h-5 text-green-500" />
-                   <span>24/7 Priority Support</span>
-                </li>
-                <li className="flex items-center gap-4 text-gray-300">
-                   <CheckCircle2 className="w-5 h-5 text-green-500" />
-                   <span>On-site Setup & Training</span>
-                </li>
-             </ul>
+              <div className="bg-green-500/10 text-green-500 py-4 px-6 rounded-2xl font-bold text-base mb-12 border border-green-500/20 text-center ring-1 ring-green-500/30">
+                 + ₹20,000 One-time Expert Setup Fee
+              </div>
 
-             <Link to="/login" className="bg-green-500 hover:bg-green-600 text-black font-bold py-5 rounded-2xl block w-full text-xl shadow-lg shadow-green-500/20 transition-all hover:scale-[1.02]">
+              <div className="space-y-6 mb-12">
+                <h4 className="text-gray-400 font-bold text-sm uppercase tracking-widest">Everything Included:</h4>
+                <ul className="grid sm:grid-cols-2 gap-4">
+                  {[
+                    'Unlimited Orders & Tokens',
+                    'WhatsApp Reports & Billing',
+                    'Full KDS & Inventory System',
+                    '24/7 Phone Support',
+                    'On-site Setup & Training',
+                    'Automatic Future Updates'
+                  ].map((feat, i) => (
+                    <li key={i} className="flex items-center gap-3 text-gray-300 font-medium">
+                      <CheckCircle2 className="w-5 h-5 text-green-500 shrink-0" />
+                      <span>{feat}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              <Link 
+                to="/login" 
+                className="bg-green-500 hover:bg-green-600 active:scale-95 text-black font-bold py-6 rounded-2xl block w-full text-2xl shadow-xl shadow-green-500/20 transition-all text-center tracking-tight btn-shimmer"
+              >
                 Get Started Now
-             </Link>
+              </Link>
+              
+              <p className="text-center text-gray-500 text-xs mt-6 font-medium">
+                No credit card required to start 14-day free trial.
+              </p>
+            </div>
           </div>
         </div>
       </section>
