@@ -4,25 +4,22 @@ import {
   ShoppingBag,
   MessageSquare,
   ChefHat,
-  Calendar,
   TrendingUp,
   Zap,
   CheckCircle2,
   ArrowRight,
   Menu,
   X,
-  Play,
   Star,
-  Users,
-  Award,
   Globe,
-  Phone,
-  Mail,
   Twitter,
   Instagram,
   Facebook,
   Linkedin,
-  Shield
+  Shield,
+  Clock,
+  AlertCircle,
+  Database
 } from 'lucide-react';
 import './ZenRestroLanding.css';
 
@@ -57,87 +54,54 @@ const ZenRestroLanding = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const restaurantsCount = useCounter(500);
-  const ordersCount = useCounter(1000);
-  const uptimeCount = useCounter(99);
-
-  const features = [
+  const featureCards = [
     {
-      title: 'Smart Online Ordering',
-      description: 'Streamline your sales with a seamless digital menu and ordering interface that converts visitors into customers.',
+      title: 'Billing POS',
+      description: 'Bill customers in seconds. Supports GST, discounts, and multiple payment modes (UPI, Cash, Card).',
       icon: <ShoppingBag className="w-7 h-7" />
     },
     {
-      title: 'WhatsApp Integration',
-      description: 'Accept and manage orders directly through WhatsApp with automated responses and notifications.',
-      icon: <MessageSquare className="w-7 h-7" />
+      title: 'Order Management',
+      description: 'Digital KOTs. Track every table status on one screen. No more paper slips lost in the wind.',
+      icon: <Clock className="w-7 h-7" />
     },
     {
-      title: 'Kitchen Display System',
-      description: 'Digitalize your kitchen workflow with our KDS - eliminate paper tickets and reduce errors.',
+      title: 'Kitchen Display (KDS)',
+      description: 'Kitchen staff sees orders instantly. Reduce noise, reduce confusion, serve food faster.',
       icon: <ChefHat className="w-7 h-7" />
     },
     {
-      title: 'Table Reservations',
-      description: 'Effortless reservation management to maximize your restaurant capacity and reduce no-shows.',
-      icon: <Calendar className="w-7 h-7" />
+      title: 'Smart Inventory',
+      description: 'Know your stock before it runs out. Get automated alerts when specific ingredients are low.',
+      icon: <Database className="w-7 h-7" />
     },
     {
-      title: 'Real-time Analytics',
-      description: 'Monitor every order from preparation to delivery with live tracking and detailed reports.',
+      title: 'Real-time Reports',
+      description: 'Get daily sales summaries directly on your WhatsApp. No need to open the laptop.',
       icon: <TrendingUp className="w-7 h-7" />
     },
     {
-      title: 'Smart Inventory',
-      description: 'AI-powered inventory management that predicts stock needs and reduces waste significantly.',
+      title: 'Lightning Performance',
+      description: 'Sub-second processing. Works from anywhere, even on mobile or tablets.',
       icon: <Zap className="w-7 h-7" />
     }
   ];
 
-  const steps = [
+  const problems = [
     {
-      step: '01',
-      title: 'Customer Places Order',
-      description: 'Customers scan QR code or message via WhatsApp to view your digital menu and place orders.'
+      title: 'Billing delays during rush hour?',
+      solution: 'Generate bills in just 2 clicks with our optimized interface.',
+      icon: <AlertCircle className="w-6 h-6 text-accent" />
     },
     {
-      step: '02',
-      title: 'Kitchen Receives Order',
-      description: 'Orders instantly appear on the KDS for the kitchen staff to view and start preparing.'
+      title: 'Orders getting lost between staff?',
+      solution: 'Instant sync from table to kitchen via digital display.',
+      icon: <AlertCircle className="w-6 h-6 text-accent" />
     },
     {
-      step: '03',
-      title: 'Food Preparation',
-      description: 'Staff updates status as food moves from prep to ready-for-service with one tap.'
-    },
-    {
-      step: '04',
-      title: 'Auto Notifications',
-      description: 'Customers receive automated WhatsApp updates about their order status in real-time.'
-    }
-  ];
-
-  const pricing = [
-    {
-      name: 'Starter',
-      price: '₹999',
-      period: '/month',
-      features: ['Up to 500 orders/mo', 'Digital Menu', 'WhatsApp Integration', 'Basic Analytics', 'Email Support'],
-      popular: false
-    },
-    {
-      name: 'Professional',
-      price: '₹2,499',
-      period: '/month',
-      features: ['Unlimited orders', 'Full KDS System', 'Advanced Analytics', '24/7 Priority Support', 'Table Management', 'Inventory System', 'Custom Branding'],
-      popular: true
-    },
-    {
-      name: 'Enterprise',
-      price: '₹4,999',
-      period: '/month',
-      features: ['Multi-branch Support', 'API Access', 'Dedicated Account Manager', 'Marketing Tools', 'White-label Solution', 'Custom Integrations', 'SLA Guarantee'],
-      popular: false
+      title: 'End-of-day math taking hours?',
+      solution: 'Automated daily reports delivered straight to your WhatsApp.',
+      icon: <AlertCircle className="w-6 h-6 text-accent" />
     }
   ];
 
@@ -145,41 +109,14 @@ const ZenRestroLanding = () => {
     {
       name: 'Sarah Mitchell',
       role: 'Owner, The Golden Bistro',
-      text: 'ZenRestro transformed our operations. WhatsApp orders alone increased our revenue by 35% in just two months. The KDS system eliminated all our order confusion.',
-      rating: 5,
-      image: null
+      text: 'ZenRestro transformed our operations. WhatsApp reports alone save me 2 hours every night. The billing is actually fast enough for our weekend rush.',
+      rating: 5
     },
     {
       name: 'David Chen',
       role: 'Manager, Sakura Sushi',
-      text: 'The Kitchen Display System is a lifesaver. No more lost tickets or miscommunication between front and back of house. Our efficiency improved by 50%.',
-      rating: 5,
-      image: null
-    },
-    {
-      name: 'Priya Sharma',
-      role: 'Founder, Spice Garden',
-      text: 'Best investment for our restaurant. The automated WhatsApp notifications keep customers informed and reduce follow-up calls by 80%.',
-      rating: 5,
-      image: null
-    }
-  ];
-
-  const whyChooseUs = [
-    {
-      icon: <Zap className="w-8 h-8" />,
-      title: 'Lightning Fast',
-      description: 'Sub-second order processing with real-time sync across all devices and terminals.'
-    },
-    {
-      icon: <Shield className="w-8 h-8" />,
-      title: 'Bank-Level Security',
-      description: 'Your data is encrypted with 256-bit SSL. We are PCI-DSS compliant and GDPR ready.'
-    },
-    {
-      icon: <Globe className="w-8 h-8" />,
-      title: 'Cloud-Native',
-      description: 'Access your restaurant from anywhere. Works offline with automatic sync when online.'
+      text: 'The KDS system is a lifesaver. No more lost tickets or miscommunication. Our kitchen efficiency improved by 50% in the first week.',
+      rating: 5
     }
   ];
 
@@ -201,11 +138,9 @@ const ZenRestroLanding = () => {
 
             <div className="nav-links desktop-only">
               <a href="#features">Features</a>
-              <a href="#how-it-works">How It Works</a>
               <a href="#pricing">Pricing</a>
-              <a href="#testimonials">Testimonials</a>
               <Link to="/login" className="btn-secondary">Login</Link>
-              <Link to="/login" className="btn-primary">Start Free Trial</Link>
+              <Link to="/login" className="btn-primary">Get Started</Link>
             </div>
 
             <button className="mobile-menu-toggle" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
@@ -218,11 +153,9 @@ const ZenRestroLanding = () => {
         {isMobileMenuOpen && (
           <div className="mobile-menu">
             <a href="#features" onClick={() => setIsMobileMenuOpen(false)}>Features</a>
-            <a href="#how-it-works" onClick={() => setIsMobileMenuOpen(false)}>How It Works</a>
             <a href="#pricing" onClick={() => setIsMobileMenuOpen(false)}>Pricing</a>
-            <a href="#testimonials" onClick={() => setIsMobileMenuOpen(false)}>Testimonials</a>
             <Link to="/login" className="btn-secondary" onClick={() => setIsMobileMenuOpen(false)}>Login</Link>
-            <Link to="/login" className="btn-primary" onClick={() => setIsMobileMenuOpen(false)}>Start Free Trial</Link>
+            <Link to="/login" className="btn-primary" onClick={() => setIsMobileMenuOpen(false)}>Get Started</Link>
           </div>
         )}
       </nav>
@@ -231,14 +164,9 @@ const ZenRestroLanding = () => {
       <section className="hero">
         <div className="hero-bg">
           <div className="hero-particles">
-            <div className="particle"></div>
-            <div className="particle"></div>
-            <div className="particle"></div>
-            <div className="particle"></div>
-            <div className="particle"></div>
-            <div className="particle"></div>
-            <div className="particle"></div>
-            <div className="particle"></div>
+            {[...Array(8)].map((_, i) => (
+              <div key={i} className="particle"></div>
+            ))}
           </div>
           <div className="hero-glow"></div>
         </div>
@@ -246,38 +174,38 @@ const ZenRestroLanding = () => {
         <div className="container">
           <div className="hero-content">
             <div className="hero-badge">
-              <span>Next Generation Restaurant SaaS</span>
+              <span>Simple • Fast • Reliable</span>
             </div>
 
             <h1>
-              Automate Your Restaurant with <span className="text-gradient">Smart Ordering</span> & WhatsApp
+              Stop Billing Mistakes. <span className="text-gradient">Start Serving Faster.</span>
             </h1>
 
             <p>
-              Elevate your restaurant operations with cutting-edge automation.
-              From QR menus to kitchen management, we handle the tech so you can focus on what you do best — serving amazing food.
+              ZenRestro is the easy POS software built for busy Indian restaurants. 
+              Manage everything from billing to inventory in one place—no technical skills needed.
             </p>
 
             <div className="hero-btns">
               <Link to="/login" className="btn-primary-large">
-                Start Free Trial <ArrowRight className="w-5 h-5 ml-2" />
+                Start 14-Day Free Trial <ArrowRight className="w-5 h-5 ml-2" />
               </Link>
               <Link to="/login" className="btn-outline-large">
-                Get a Demo
+                Book a Live Demo
               </Link>
             </div>
 
             <div className="hero-stats">
               <div className="stat-item">
-                <span className="stat-number">{restaurantsCount}+</span>
+                <span className="stat-number">500+</span>
                 <span className="stat-label">Restaurants</span>
               </div>
               <div className="stat-item">
-                <span className="stat-number">{ordersCount}K+</span>
-                <span className="stat-label">Orders Processed</span>
+                <span className="stat-number">1M+</span>
+                <span className="stat-label">Bills Generated</span>
               </div>
               <div className="stat-item">
-                <span className="stat-number">{uptimeCount}.9%</span>
+                <span className="stat-number">99.9%</span>
                 <span className="stat-label">Uptime</span>
               </div>
             </div>
@@ -285,22 +213,24 @@ const ZenRestroLanding = () => {
         </div>
       </section>
 
-      {/* Why Choose Us */}
-      <section className="features">
+      {/* Problem Solver Section */}
+      <section className="problem-section" style={{ background: '#1E293B' }}>
         <div className="container">
           <div className="section-header">
-            <h2>Why <span className="text-gradient">ZenRestro</span>?</h2>
-            <p>Join 500+ restaurants that trust ZenRestro to power their operations.</p>
+            <h2>Running a restaurant is hard. <span className="text-gradient">Your software shouldn’t be.</span></h2>
+            <p>We solved the messiest parts of daily operations so you can focus on your food.</p>
           </div>
 
           <div className="features-grid">
-            {whyChooseUs.map((item, idx) => (
-              <div key={idx} className="feature-card" style={{ textAlign: 'center' }}>
-                <div className="feature-icon" style={{ margin: '0 auto 1.5rem' }}>
-                  {item.icon}
+            {problems.map((p, idx) => (
+              <div key={idx} className="feature-card" style={{ borderLeft: '4px solid var(--accent)' }}>
+                <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
+                  <div style={{ marginTop: '0.25rem' }}>{p.icon}</div>
+                  <div>
+                    <h3 style={{ fontSize: '1.1rem', marginBottom: '0.5rem' }}>{p.title}</h3>
+                    <p style={{ color: 'var(--primary)', fontWeight: '500' }}>→ {p.solution}</p>
+                  </div>
                 </div>
-                <h3>{item.title}</h3>
-                <p>{item.description}</p>
               </div>
             ))}
           </div>
@@ -308,15 +238,15 @@ const ZenRestroLanding = () => {
       </section>
 
       {/* Features Section */}
-      <section id="features" className="features" style={{ background: 'var(--bg-dark)' }}>
+      <section id="features" className="features">
         <div className="container">
           <div className="section-header">
-            <h2>Powerful Features for <span className="text-gradient">Modern Restaurants</span></h2>
-            <p>Everything you need to scale your restaurant business efficiently.</p>
+            <h2>Everything You Need, <span className="text-gradient">Nothing You Don't.</span></h2>
+            <p>Powerful features designed for utility and speed, not complexity.</p>
           </div>
 
           <div className="features-grid">
-            {features.map((feature, idx) => (
+            {featureCards.map((feature, idx) => (
               <div key={idx} className="feature-card">
                 <div className="feature-icon">{feature.icon}</div>
                 <h3>{feature.title}</h3>
@@ -327,32 +257,12 @@ const ZenRestroLanding = () => {
         </div>
       </section>
 
-      {/* How It Works */}
-      <section id="how-it-works" className="how-it-works">
-        <div className="container">
-          <div className="section-header">
-            <h2>How <span className="text-gradient">ZenRestro</span> Works</h2>
-            <p>A simple 4-step process to automate your entire restaurant workflow.</p>
-          </div>
-
-          <div className="steps-container">
-            {steps.map((step, idx) => (
-              <div key={idx} className="step-item">
-                <div className="step-number">{step.step}</div>
-                <h3>{step.title}</h3>
-                <p>{step.description}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Dashboard Preview */}
+      {/* Dashboard Preview Overlay - Simplified Mockup */}
       <section className="dashboard-preview">
         <div className="container">
           <div className="section-header">
-            <h2>Beautiful <span className="text-gradient">Admin Dashboard</span></h2>
-            <p>Powerful insights at your fingertips with our intuitive control panel.</p>
+            <h2>Powerful Insights <span className="text-gradient">On Any Device</span></h2>
+            <p>From large tablets to your own phone—ZenRestro adapts to your workflow.</p>
           </div>
 
           <div className="dashboard-container glass">
@@ -360,111 +270,45 @@ const ZenRestroLanding = () => {
               <div className="dots">
                 <span></span><span></span><span></span>
               </div>
-              <div className="dashboard-title">ZenRestro Admin Console</div>
+              <div className="dashboard-title">ZenRestro Admin Dashboard</div>
             </div>
-            <div className="dashboard-mockup">
-              <div className="mock-sidebar">
-                <div className="mock-sidebar-item"></div>
-                <div className="mock-sidebar-item"></div>
-                <div className="mock-sidebar-item"></div>
-                <div className="mock-sidebar-item"></div>
-                <div className="mock-sidebar-item"></div>
-              </div>
-              <div className="mock-main">
-                <div className="mock-top">
-                  <div className="mock-card"></div>
-                  <div className="mock-card"></div>
-                  <div className="mock-card"></div>
-                </div>
-                <div className="mock-content">
-                  <div className="mock-chart"></div>
-                  <div className="mock-list">
-                    <div className="mock-list-item"></div>
-                    <div className="mock-list-item"></div>
-                    <div className="mock-list-item"></div>
-                  </div>
-                </div>
-              </div>
+            <div style={{ padding: '2rem', textAlign: 'center' }}>
+               <div style={{ background: 'var(--bg-dark)', height: '400px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <TrendingUp className="w-16 h-16 text-primary opacity-20" />
+                  <span style={{ position: 'absolute', color: 'var(--text-gray)', fontWeight: '600' }}>Interface Mockup: Fast & Clean Billing Screen</span>
+               </div>
             </div>
           </div>
         </div>
       </section>
 
       {/* Pricing Section */}
-      <section id="pricing" className="pricing">
+      <section id="pricing" className="pricing" style={{ background: 'var(--bg-dark)' }}>
         <div className="container">
           <div className="section-header">
-            <h2>Simple, <span className="text-gradient">Transparent</span> Pricing</h2>
-            <p>Choose the perfect plan for your restaurant's size and needs.</p>
+            <h2>One Simple Plan. <span className="text-gradient">No Hidden Charges.</span></h2>
+            <p>Get everything ZenRestro has to offer with one transparent price.</p>
           </div>
 
-          <div className="pricing-grid">
-            {pricing.map((plan, idx) => (
-              <div key={idx} className={`pricing-card ${plan.popular ? 'popular' : ''}`}>
-                {plan.popular && <div className="popular-badge">Most Popular</div>}
-                <h3>{plan.name}</h3>
-                <div className="price">{plan.price}<span>{plan.period}</span></div>
-                <ul>
-                  {plan.features.map((feat, fIdx) => (
-                    <li key={fIdx}>
-                      <CheckCircle2 className="w-5 h-5" />
-                      {feat}
-                    </li>
-                  ))}
-                </ul>
-                <Link to="/login" className={plan.popular ? 'btn-primary' : 'btn-outline'}>
-                  Get Started
-                </Link>
+          <div style={{ maxWidth: '450px', margin: '0 auto' }}>
+            <div className="pricing-card popular" style={{ textAlign: 'center' }}>
+              <div className="popular-badge">Full Featured Plan</div>
+              <h3>Ultimate POS</h3>
+              <div className="price">₹5,999<span>/year</span></div>
+              <div style={{ margin: '1rem 0', padding: '0.5rem', background: 'rgba(245, 158, 11, 0.1)', color: 'var(--accent)', borderRadius: '8px', fontSize: '0.9rem', fontWeight: '600' }}>
+                + ₹20,000 One-time Setup Feed
               </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Testimonials */}
-      <section id="testimonials" className="testimonials">
-        <div className="container">
-          <div className="section-header">
-            <h2>Loved by <span className="text-gradient">Restaurant Owners</span></h2>
-            <p>See what our customers have to say about ZenRestro.</p>
-          </div>
-
-          <div className="testimonials-grid">
-            {testimonials.map((t, idx) => (
-              <div key={idx} className="testimonial-card">
-                <div style={{ display: 'flex', gap: '0.25rem', marginBottom: '1rem' }}>
-                  {[...Array(t.rating)].map((_, i) => (
-                    <Star key={i} className="w-4 h-4" fill="#d4af37" color="#d4af37" />
-                  ))}
-                </div>
-                <p className="quote">"{t.text}"</p>
-                <div className="author">
-                  <div className="author-img"></div>
-                  <div>
-                    <h4>{t.name}</h4>
-                    <span>{t.role}</span>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section style={{ background: 'var(--bg-dark-secondary)', padding: '6rem 0', textAlign: 'center' }}>
-        <div className="container">
-          <div className="section-header" style={{ marginBottom: '2rem' }}>
-            <h2>Ready to <span className="text-gradient">Transform</span> Your Restaurant?</h2>
-            <p>Start your 14-day free trial today. No credit card required.</p>
-          </div>
-          <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
-            <Link to="/login" className="btn-primary-large">
-              Start Free Trial <ArrowRight className="w-5 h-5 ml-2" />
-            </Link>
-            <Link to="/login" className="btn-outline-large">
-              Schedule Demo Call
-            </Link>
+              <ul style={{ textAlign: 'left', marginBottom: '2rem' }}>
+                <li><CheckCircle2 className="w-5 h-5" /> Unlimited Orders & Tokens</li>
+                <li><CheckCircle2 className="w-5 h-5" /> WhatsApp Billing & Reports</li>
+                <li><CheckCircle2 className="w-5 h-5" /> Full KDS & Inventory System</li>
+                <li><CheckCircle2 className="w-5 h-5" /> 24/7 Priority Support</li>
+                <li><CheckCircle2 className="w-5 h-5" /> On-site Setup & Staff Training</li>
+              </ul>
+              <Link to="/login" className="btn-primary" style={{ width: '100%', display: 'block' }}>
+                Get Started Now
+              </Link>
+            </div>
           </div>
         </div>
       </section>
@@ -478,7 +322,7 @@ const ZenRestroLanding = () => {
                 <span className="logo-icon">ZR</span>
                 <span className="logo-text">ZenRestro</span>
               </div>
-              <p>Revolutionizing the restaurant industry with cutting-edge SaaS automation. Build, Scale, and Grow with confidence.</p>
+              <p>The simplest POS software for modern Indian restaurants. Built for speed, designed for stability.</p>
               <div className="social-links" style={{ marginTop: '1.5rem' }}>
                 <a href="#"><Twitter className="w-5 h-5" /></a>
                 <a href="#"><Instagram className="w-5 h-5" /></a>
@@ -491,30 +335,19 @@ const ZenRestroLanding = () => {
               <h4>Product</h4>
               <a href="#features">Features</a>
               <a href="#pricing">Pricing</a>
-              <a href="#">Integrations</a>
-              <a href="#">API Docs</a>
-            </div>
-
-            <div className="footer-links">
-              <h4>Company</h4>
-              <a href="#">About Us</a>
-              <a href="#">Careers</a>
-              <a href="#">Blog</a>
-              <a href="#">Press Kit</a>
+              <a href="#">Security</a>
             </div>
 
             <div className="footer-links">
               <h4>Support</h4>
               <a href="#">Help Center</a>
-              <a href="#">Contact Us</a>
-              <a href="#">Privacy Policy</a>
-              <a href="#">Terms of Service</a>
+              <a href="#">Terms</a>
+              <a href="#">Privacy</a>
             </div>
           </div>
 
           <div className="footer-bottom">
-            <p>© 2024 ZenRestro. All rights reserved.</p>
-            <p>Made with ❤️ in India</p>
+            <p>© 2024 ZenRestro. Made with ❤️ in India</p>
           </div>
         </div>
       </footer>

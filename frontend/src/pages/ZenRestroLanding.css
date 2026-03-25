@@ -1,24 +1,25 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@300;400;500;600;700;800;900&display=swap');
 
 :root {
-  --primary: #d4af37;
-  --primary-light: #f9e29c;
-  --primary-glow: rgba(212, 175, 55, 0.5);
-  --primary-glow-soft: rgba(212, 175, 55, 0.2);
-  --bg-dark: #050507;
-  --bg-dark-secondary: #0a0a0f;
-  --bg-card: #12121a;
-  --bg-card-hover: #1a1a25;
-  --text-white: #ffffff;
-  --text-gray: #8a8a9a;
-  --text-gray-light: #b0b0c0;
-  --gold: #d4af37;
-  --gold-gradient: linear-gradient(135deg, #d4af37 0%, #f9e29c 50%, #d4af37 100%);
-  --gold-gradient-soft: linear-gradient(135deg, rgba(212, 175, 55, 0.3) 0%, rgba(249, 226, 156, 0.1) 100%);
-  --glass: rgba(255, 255, 255, 0.03);
-  --glass-border: rgba(255, 255, 255, 0.06);
-  --glass-border-hover: rgba(212, 175, 55, 0.3);
-  --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  --primary: #10B981; /* Emerald Green */
+  --primary-light: #34D399;
+  --primary-glow: rgba(16, 185, 129, 0.4);
+  --primary-glow-soft: rgba(16, 185, 129, 0.15);
+  --secondary: #0F172A; /* Deep Slate */
+  --accent: #F59E0B; /* Amber */
+  --bg-dark: #0F172A;
+  --bg-dark-secondary: #1E293B;
+  --bg-card: #1E293B;
+  --bg-card-hover: #334155;
+  --text-white: #F8FAFC;
+  --text-gray: #94A3B8;
+  --text-gray-light: #CBD5E1;
+  --accent-gradient: linear-gradient(135deg, #10B981 0%, #34D399 100%);
+  --accent-gradient-soft: linear-gradient(135deg, rgba(16, 185, 129, 0.2) 0%, rgba(52, 211, 153, 0.05) 100%);
+  --glass: rgba(255, 255, 255, 0.02);
+  --glass-border: rgba(255, 255, 255, 0.05);
+  --glass-border-hover: rgba(16, 185, 129, 0.3);
+  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 * {
@@ -42,7 +43,7 @@ h4,
 h5,
 h6,
 .logo-text {
-  font-family: 'Poppins', sans-serif;
+  font-family: 'Outfit', sans-serif;
 }
 
 .container {
@@ -52,7 +53,7 @@ h6,
 }
 
 .text-gradient {
-  background: var(--gold-gradient);
+  background: var(--accent-gradient);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -125,10 +126,10 @@ h6,
 }
 
 .logo-icon {
-  background: var(--gold-gradient);
-  color: var(--bg-dark);
+  background: var(--accent-gradient);
+  color: #0F172A;
   padding: 0.35rem 0.75rem;
-  border-radius: 10px;
+  border-radius: 8px;
   font-size: 1.25rem;
   font-weight: 800;
   box-shadow: 0 4px 20px var(--primary-glow);
@@ -170,16 +171,16 @@ h6,
 
 /* Buttons */
 .btn-primary {
-  background: var(--gold-gradient);
-  color: #050507;
+  background: var(--accent-gradient);
+  color: #0F172A;
   padding: 0.75rem 1.75rem;
-  border-radius: 12px;
+  border-radius: 8px;
   font-weight: 600;
   text-decoration: none;
   transition: var(--transition);
   border: none;
   cursor: pointer;
-  box-shadow: 0 4px 20px var(--primary-glow);
+  box-shadow: 0 4px 15px var(--primary-glow);
   position: relative;
   overflow: hidden;
 }
@@ -300,9 +301,9 @@ h6,
 }
 
 .btn-outline:hover {
-  border-color: var(--gold);
-  color: var(--gold);
-  background: var(--gold-gradient-soft);
+  border-color: var(--primary);
+  color: var(--primary);
+  background: var(--accent-gradient-soft);
 }
 
 /* Hero */
@@ -609,7 +610,7 @@ section {
   left: 0;
   right: 0;
   height: 2px;
-  background: var(--gold-gradient);
+  background: var(--accent-gradient);
   opacity: 0;
   transition: var(--transition);
 }
@@ -631,16 +632,16 @@ section {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--gold-gradient-soft);
+  background: var(--accent-gradient-soft);
   border-radius: 16px;
   margin-bottom: 1.5rem;
-  color: var(--gold);
+  color: var(--primary);
   transition: var(--transition);
 }
 
 .feature-card:hover .feature-icon {
-  background: var(--gold-gradient);
-  color: var(--bg-dark);
+  background: var(--accent-gradient);
+  color: #0F172A;
   box-shadow: 0 8px 20px var(--primary-glow);
 }
 
@@ -677,7 +678,7 @@ section {
   left: 10%;
   right: 10%;
   height: 2px;
-  background: linear-gradient(90deg, var(--glass-border), var(--gold), var(--glass-border));
+  background: linear-gradient(90deg, var(--glass-border), var(--primary), var(--glass-border));
 }
 
 .step-item {
@@ -698,14 +699,14 @@ section {
   margin: 0 auto 1.5rem;
   font-size: 1.5rem;
   font-weight: 700;
-  color: var(--gold);
+  color: var(--primary);
   transition: var(--transition);
 }
 
 .step-item:hover .step-number {
-  background: var(--gold-gradient);
-  color: var(--bg-dark);
-  border-color: var(--gold);
+  background: var(--accent-gradient);
+  color: #0F172A;
+  border-color: var(--primary);
   box-shadow: 0 0 30px var(--primary-glow);
   transform: scale(1.1);
 }
@@ -797,7 +798,7 @@ section {
 .mock-sidebar-item:nth-child(1) {
   width: 100%;
   height: 30px;
-  background: var(--gold);
+  background: var(--primary);
   opacity: 0.3;
 }
 
@@ -885,7 +886,7 @@ section {
 }
 
 .pricing-card.popular {
-  border: 2px solid var(--gold);
+  border: 2px solid var(--primary);
   transform: scale(1.05);
   box-shadow: 0 0 40px var(--primary-glow-soft);
 }
@@ -897,7 +898,7 @@ section {
   left: -1px;
   right: -1px;
   height: 4px;
-  background: var(--gold-gradient);
+  background: var(--accent-gradient);
   border-radius: 24px 24px 0 0;
 }
 
@@ -906,8 +907,8 @@ section {
   top: -12px;
   left: 50%;
   transform: translateX(-50%);
-  background: var(--gold-gradient);
-  color: var(--bg-dark);
+  background: var(--accent-gradient);
+  color: #0F172A;
   padding: 0.4rem 1.25rem;
   border-radius: 100px;
   font-size: 0.75rem;
@@ -926,7 +927,7 @@ section {
 .price {
   font-size: 3rem;
   font-weight: 800;
-  color: var(--gold);
+  color: var(--primary);
   margin-bottom: 1.5rem;
 }
 
@@ -956,7 +957,7 @@ section {
 }
 
 .pricing-card li svg {
-  color: var(--gold);
+  color: var(--primary);
   flex-shrink: 0;
 }
 
@@ -1019,7 +1020,7 @@ section {
 .author-img {
   width: 50px;
   height: 50px;
-  background: var(--gold-gradient);
+  background: var(--accent-gradient);
   border-radius: 50%;
 }
 
@@ -1058,7 +1059,7 @@ section {
 .footer-links h4 {
   font-size: 1rem;
   font-weight: 600;
-  color: var(--gold);
+  color: var(--primary);
   margin-bottom: 1.25rem;
 }
 
@@ -1072,7 +1073,7 @@ section {
 }
 
 .footer-links a:hover {
-  color: var(--gold);
+  color: var(--primary);
 }
 
 .footer-bottom {
@@ -1104,8 +1105,8 @@ section {
 }
 
 .social-links a:hover {
-  border-color: var(--gold);
-  color: var(--gold);
+  border-color: var(--primary);
+  color: var(--primary);
   transform: translateY(-2px);
 }
 
