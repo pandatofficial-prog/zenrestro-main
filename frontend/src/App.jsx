@@ -104,6 +104,7 @@ function AppRoutes() {
 
         {/* Restaurant Admin Routes */}
         <Route path="/admin" element={<ProtectedRoute allowedRoles={['admin']}><Dashboard /></ProtectedRoute>} />
+        <Route path="/admin/trial-requests" element={<ProtectedRoute allowedRoles={['superadmin']}><TrialRequests /></ProtectedRoute>} />
         <Route path="/admin/orders" element={<ProtectedRoute allowedRoles={['admin']}><Orders /></ProtectedRoute>} />
         <Route path="/admin/bills" element={<ProtectedRoute allowedRoles={['admin']}><Bills /></ProtectedRoute>} />
         <Route path="/admin/menu" element={<ProtectedRoute allowedRoles={['admin']}><Menu /></ProtectedRoute>} />
@@ -120,7 +121,6 @@ function AppRoutes() {
         <Route path="/superadmin/users" element={<ProtectedRoute allowedRoles={['superadmin']}><Users /></ProtectedRoute>} />
         <Route path="/superadmin/reports" element={<ProtectedRoute allowedRoles={['superadmin']}><ReportsSuperAdmin /></ProtectedRoute>} />
         <Route path="/superadmin/settings" element={<ProtectedRoute allowedRoles={['superadmin']}><SettingsSuperAdmin /></ProtectedRoute>} />
-        <Route path="/superadmin/trial-requests" element={<ProtectedRoute allowedRoles={['superadmin']}><TrialRequests /></ProtectedRoute>} />
 
         {/* Default redirect */}
         <Route path="*" element={<Navigate to="/" replace />} />

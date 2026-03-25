@@ -77,7 +77,7 @@ const Layout = ({ children }) => {
     { icon: CreditCard, label: 'Subscriptions', path: '/superadmin/subscriptions' },
     { icon: ShoppingBag, label: 'Users', path: '/superadmin/users' },
     { icon: BarChart3, label: 'Reports', path: '/superadmin/reports' },
-    { icon: UserPlus, label: 'Trial Requests', path: '/superadmin/trial-requests' },
+    { icon: UserPlus, label: 'Trial Requests', path: '/admin/trial-requests' },
     { icon: Settings, label: 'Settings', path: '/superadmin/settings' },
   ];
 

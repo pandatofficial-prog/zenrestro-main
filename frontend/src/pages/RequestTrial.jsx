@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
+import { toast, Toaster } from 'react-hot-toast';
 import { ChefHat, Phone, MapPin, Building2, User, CheckCircle2, ArrowRight, Loader2, Mail } from 'lucide-react';
 
 const RequestTrial = () => {
@@ -15,22 +16,39 @@ const RequestTrial = () => {
   
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
-  const [error, setError] = useState('');
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  const validateForm = () => {
+    if (!formData.restaurantName.trim()) return 'Restaurant name is required';
+    if (!formData.ownerName.trim()) return 'Owner name is required';
+    if (!formData.phone.trim() || formData.phone.length < 10) return 'Valid phone number is required';
+    if (!formData.email.trim() || !formData.email.includes('@')) return 'Valid email is required';
+    if (!formData.city.trim()) return 'City is required';
+    return null;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    const error = validateForm();
+    if (error) {
+      toast.error(error);
+      return;
+    }
+
     setLoading(true);
-    setError('');
 
     try {
+      // Ensure the endpoint matches what we expect
       await axios.post('http://localhost:5000/api/trial-requests', formData);
       setSuccess(true);
+      toast.success('Request submitted successfully!');
     } catch (err) {
-      setError(err.response?.data?.message || 'Something went wrong. Please try again.');
+      const msg = err.response?.data?.message || 'Something went wrong. Please try again.';
+      toast.error(msg);
     } finally {
       setLoading(false);
     }
@@ -39,6 +57,7 @@ const RequestTrial = () => {
   if (success) {
     return (
       <div className="min-h-screen bg-[#0B0B0B] flex items-center justify-center p-6 font-sans">
+        <Toaster position="top-right" />
         <div className="max-w-md w-full bg-[#111111] border border-white/5 rounded-[2.5rem] p-12 text-center shadow-2xl animate-fadeIn">
           <div className="w-24 h-24 bg-green-500/10 rounded-full flex items-center justify-center mx-auto mb-8">
             <CheckCircle2 className="w-12 h-12 text-green-500" />
@@ -57,6 +76,7 @@ const RequestTrial = () => {
 
   return (
     <div className="min-h-screen bg-[#0B0B0B] flex items-center justify-center p-6 font-sans selection:bg-green-500/30 overflow-hidden relative">
+      <Toaster position="top-right" />
       {/* Background Orbs */}
       <div className="absolute top-[-10%] right-[-10%] w-[40rem] h-[40rem] bg-green-500/5 rounded-full blur-[120px]" />
       <div className="absolute bottom-[-10%] left-[-10%] w-[40rem] h-[40rem] bg-blue-500/5 rounded-full blur-[120px]" />
@@ -102,15 +122,8 @@ const RequestTrial = () => {
               </div>
             </div>
             <h1 className="text-3xl md:text-5xl font-black text-white tracking-tight mb-4 text-center lg:text-left">Request Trial</h1>
-            <p className="text-gray-400 font-medium text-sm md:text-lg text-center lg:text-left">No credit card required. Cancel anytime.</p>
+            <p className="text-gray-400 font-medium text-sm md:text-lg text-center lg:text-left">Fill details and we'll set up your account</p>
           </div>
-
-          {error && (
-            <div className="mb-8 p-5 bg-red-500/10 border border-red-500/20 rounded-2xl text-red-500 text-sm font-bold flex items-center gap-3">
-              <div className="w-2 h-2 rounded-full bg-red-500" />
-              {error}
-            </div>
-          )}
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid md:grid-cols-2 gap-6">
@@ -140,7 +153,7 @@ const RequestTrial = () => {
               disabled={loading}
               className="w-full py-6 bg-green-500 hover:bg-green-600 disabled:opacity-50 text-black font-black text-xl rounded-3xl shadow-2xl shadow-green-500/20 transition-all active:scale-95 flex items-center justify-center gap-4 mt-6 btn-shimmer"
             >
-              {loading ? <Loader2 className="animate-spin" /> : <>Start 7-Day Trial <ArrowRight/></>}
+              {loading ? <Loader2 className="animate-spin" /> : <>Submit Request <ArrowRight/></>}
             </button>
           </form>
         </div>

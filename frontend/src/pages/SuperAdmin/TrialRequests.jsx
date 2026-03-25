@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '../../services/api';
+import { toast, Toaster } from 'react-hot-toast';
 import { 
   CheckCircle2, 
   XCircle, 
@@ -27,24 +28,27 @@ const TrialRequests = () => {
   const { data: requests, isLoading, isRefetching } = useQuery({
     queryKey: ['trialRequests'],
     queryFn: async () => {
-      const res = await api.get('/trial-requests');
+      const res = await api.get('/trial-request');
       return res.data;
     },
   });
 
   const approveMutation = useMutation({
-    mutationFn: (id) => api.put(`/trial-requests/${id}/approve`),
+    mutationFn: (id) => api.put(`/trial-request/${id}/approve`),
     onSuccess: (data) => {
       queryClient.invalidateQueries(['trialRequests']);
-      alert(`Account created! Use password Restro@123 for ${data.data.userEmail}`);
+      toast.success('Lead Approved! Account provisioned.');
     },
-    onError: (err) => alert(err.response?.data?.message || 'Approval failed'),
+    onError: (err) => toast.error(err.response?.data?.message || 'Approval failed'),
   });
 
   const rejectMutation = useMutation({
-    mutationFn: (id) => api.put(`/trial-requests/${id}/reject`),
-    onSuccess: () => queryClient.invalidateQueries(['trialRequests']),
-    onError: (err) => alert(err.response?.data?.message || 'Rejection failed'),
+    mutationFn: (id) => api.put(`/trial-request/${id}/reject`),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['trialRequests']);
+      toast.success('Lead Rejected');
+    },
+    onError: (err) => toast.error(err.response?.data?.message || 'Rejection failed'),
   });
 
   const filteredRequests = (requests || []).filter(req => {
@@ -66,6 +70,7 @@ const TrialRequests = () => {
 
   return (
     <Layout>
+      <Toaster position="top-right" />
       <div className="space-y-6">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between py-4">
           <div>
