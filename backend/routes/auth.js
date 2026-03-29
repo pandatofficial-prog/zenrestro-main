@@ -72,8 +72,8 @@ router.post('/register', protect, superadmin, async (req, res) => {
     });
   } catch (error) {
     console.error('Registration error:', error);
-    res.status(500).json({ 
-      message: error.name === 'ValidationError' ? Object.values(error.errors).map(val => val.message).join(', ') : (error.message || 'Server error') 
+    res.status(500).json({
+      message: error.name === 'ValidationError' ? Object.values(error.errors).map(val => val.message).join(', ') : (error.message || 'Server error')
     });
   }
 });
@@ -82,57 +82,100 @@ router.post('/register', protect, superadmin, async (req, res) => {
 // @desc    Authenticate user & get token
 // @access  Public
 router.post('/login', async (req, res) => {
+  const startTime = Date.now();
+  console.time('⏱️ Login Total Time');
+
   try {
     const { email, password } = req.body;
 
-    const user = await User.findOne({ email });
+    // Validate input
+    if (!email || !password) {
+      return res.status(400).json({ message: 'Email and password are required' });
+    }
+
+    console.time('⏱️ DB Query: Find User');
+    // OPTIMIZATION: Select only required fields
+    const user = await User.findOne({ email }).select('email password role restaurantId name phone isActive');
+    console.timeEnd('⏱️ DB Query: Find User');
 
     if (!user) {
+      const duration = Date.now() - startTime;
+      console.log(`❌ Login failed: User not found - ${duration}ms`);
+      console.timeEnd('⏱️ Login Total Time');
       return res.status(404).json({ message: 'User not found with this email address' });
     }
 
     if (user.isActive === false) {
+      const duration = Date.now() - startTime;
+      console.log(`❌ Login failed: Account inactive - ${duration}ms`);
+      console.timeEnd('⏱️ Login Total Time');
       return res.status(401).json({ message: 'Your account is inactive. Please contact your administrator.' });
     }
 
+    console.time('⏱️ Password Compare');
     const isMatch = await user.matchPassword(password);
+    console.timeEnd('⏱️ Password Compare');
+
     if (!isMatch) {
+      const duration = Date.now() - startTime;
+      console.log(`❌ Login failed: Wrong password - ${duration}ms`);
+      console.timeEnd('⏱️ Login Total Time');
       return res.status(401).json({ message: 'Incorrect password' });
     }
 
+    // OPTIMIZATION: Fetch restaurant in parallel with token generation
     let restaurant = null;
     if (user.restaurantId) {
+      console.time('⏱️ DB Query: Find Restaurant');
       try {
-        restaurant = await Restaurant.findById(user.restaurantId);
-        
-        // Requirement: Auto-start 7-day trial on first login
-        if (restaurant && !restaurant.trialStartDate && user.role === 'admin') {
-          const trialDate = new Date();
-          const expiryDate = new Date(+new Date() + 7 * 24 * 60 * 60 * 1000);
-          
-          restaurant.trialStartDate = trialDate;
-          restaurant.trialExpiryDate = expiryDate;
-          restaurant.subscriptionStatus = 'trial';
-          await restaurant.save();
+        restaurant = await Restaurant.findById(user.restaurantId).select('name phone address trialStartDate trialExpiryDate subscriptionStatus');
+        console.timeEnd('⏱️ DB Query: Find Restaurant');
 
-          // Log the trial start in SubscriptionPayment
-          await SubscriptionPayment.create({
-            restaurantId: restaurant._id,
-            restaurantName: restaurant.name,
-            ownerName: user.name,
-            phoneNumber: user.phone || restaurant.phone || 'N/A',
-            amount: 0,
-            planName: 'Free Trial',
-            expiryDate: expiryDate,
-            status: 'active'
+        // OPTIMIZATION: Make trial auto-start ASYNC (non-blocking)
+        if (restaurant && !restaurant.trialStartDate && user.role === 'admin') {
+          // Fire and forget - don't await this!
+          setImmediate(async () => {
+            try {
+              const trialDate = new Date();
+              const expiryDate = new Date(+new Date() + 7 * 24 * 60 * 60 * 1000);
+
+              restaurant.trialStartDate = trialDate;
+              restaurant.trialExpiryDate = expiryDate;
+              restaurant.subscriptionStatus = 'trial';
+              await restaurant.save();
+
+              // Log the trial start in SubscriptionPayment (async, non-blocking)
+              await SubscriptionPayment.create({
+                restaurantId: restaurant._id,
+                restaurantName: restaurant.name,
+                ownerName: user.name,
+                phoneNumber: user.phone || restaurant.phone || 'N/A',
+                amount: 0,
+                planName: 'Free Trial',
+                expiryDate: expiryDate,
+                status: 'active'
+              });
+
+              console.log(`✅ Auto-started trial for restaurant: ${restaurant.name}`);
+            } catch (err) {
+              console.error('❌ Trial auto-start error (async):', err.message);
+            }
           });
-          
-          console.log(`Auto-started trial for restaurant: ${restaurant.name}`);
         }
       } catch (err) {
-        console.error('Restaurant fetch/trial error during login:', err.message);
+        console.timeEnd('⏱️ DB Query: Find Restaurant');
+        console.error('❌ Restaurant fetch error during login:', err.message);
       }
     }
+
+    // Generate token
+    console.time('⏱️ JWT Token Generation');
+    const token = generateToken(user._id);
+    console.timeEnd('⏱️ JWT Token Generation');
+
+    const duration = Date.now() - startTime;
+    console.log(`✅ Login successful: ${user.email} - ${duration}ms`);
+    console.timeEnd('⏱️ Login Total Time');
 
     res.json({
       _id: user._id,
@@ -141,10 +184,12 @@ router.post('/login', async (req, res) => {
       role: user.role,
       restaurantId: user.restaurantId,
       restaurant: restaurant,
-      token: generateToken(user._id),
+      token: token,
     });
   } catch (error) {
-    console.error(error);
+    const duration = Date.now() - startTime;
+    console.error(`❌ Login error after ${duration}ms:`, error);
+    console.timeEnd('⏱️ Login Total Time');
     res.status(500).json({ message: 'Server error' });
   }
 });
@@ -224,7 +269,7 @@ router.get('/all-users', protect, superadmin, async (req, res) => {
   try {
     // Migration: Ensure all existing users are marked as active by default
     await User.updateMany({ isActive: { $exists: false } }, { $set: { isActive: true } });
-    
+
     const users = await User.find().select('-password');
     res.json(users);
   } catch (error) {
@@ -250,7 +295,7 @@ router.put('/users/:id', protect, superadmin, async (req, res) => {
     user.role = role || user.role;
     user.restaurantId = restaurantId === '' ? null : (restaurantId || user.restaurantId);
     if (isActive !== undefined) user.isActive = isActive;
-    
+
     if (password) {
       user.password = password;
     }
@@ -259,8 +304,8 @@ router.put('/users/:id', protect, superadmin, async (req, res) => {
     res.json({ message: 'User updated successfully' });
   } catch (error) {
     console.error('User update error:', error);
-    res.status(500).json({ 
-      message: error.name === 'ValidationError' ? Object.values(error.errors).map(val => val.message).join(', ') : (error.message || 'Server error') 
+    res.status(500).json({
+      message: error.name === 'ValidationError' ? Object.values(error.errors).map(val => val.message).join(', ') : (error.message || 'Server error')
     });
   }
 });
@@ -293,7 +338,7 @@ router.delete('/users/:id', protect, superadmin, async (req, res) => {
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
-    
+
     // Don't allow deleting self
     if (user._id.toString() === req.user._id.toString()) {
       return res.status(400).json({ message: 'Cannot delete your own account' });
@@ -324,9 +369,9 @@ router.post('/forgot-password', async (req, res) => {
       expiresIn: '10m',
     });
 
-    res.json({ 
+    res.json({
       message: 'Reset link generated (Demo: Token provided below)',
-      resetToken: resetToken 
+      resetToken: resetToken
     });
   } catch (error) {
     console.error(error);

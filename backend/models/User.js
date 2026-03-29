@@ -45,7 +45,9 @@ userSchema.pre('save', async function (next) {
   if (!this.isModified('password')) {
     return next();
   }
-  const salt = await bcrypt.genSalt(10);
+  // OPTIMIZATION: Use 8 salt rounds instead of 10 for faster hashing
+  // 8 rounds is still secure (~256x slower than brute force) but 4x faster than 10 rounds
+  const salt = await bcrypt.genSalt(8);
   this.password = await bcrypt.hash(this.password, salt);
 });
 

@@ -72,6 +72,17 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', message: 'ZenRestro API is running' });
 });
 
+// Keep-alive endpoint for cold start mitigation
+// Ping this endpoint every 5 minutes to prevent Render free tier from sleeping
+app.get('/api/ping', (req, res) => {
+  res.json({
+    status: 'alive',
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+    memory: process.memoryUsage()
+  });
+});
+
 // Seed endpoint (for deployment)
 app.post('/api/seed', async (req, res) => {
   try {

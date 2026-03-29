@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
 import { toast, Toaster } from 'react-hot-toast';
 import { ChefHat, Phone, MapPin, Building2, User, CheckCircle2, ArrowRight, Loader2, Mail } from 'lucide-react';
+import api from '../services/api';
 
 const RequestTrial = () => {
   const [formData, setFormData] = useState({
@@ -13,7 +13,7 @@ const RequestTrial = () => {
     city: '',
     businessType: 'Restaurant'
   });
-  
+
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
 
@@ -32,7 +32,7 @@ const RequestTrial = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     const error = validateForm();
     if (error) {
       toast.error(error);
@@ -42,8 +42,8 @@ const RequestTrial = () => {
     setLoading(true);
 
     try {
-      // Ensure the endpoint matches what we expect
-      await axios.post('http://localhost:5000/api/trial-requests', formData);
+      // Use the API service for proper production URL handling
+      await api.post('/trial-requests', formData);
       setSuccess(true);
       toast.success('Request submitted successfully!');
     } catch (err) {
@@ -82,7 +82,7 @@ const RequestTrial = () => {
       <div className="absolute bottom-[-10%] left-[-10%] w-[40rem] h-[40rem] bg-blue-500/5 rounded-full blur-[120px]" />
 
       <div className="max-w-6xl w-full grid lg:grid-cols-2 gap-12 items-center relative z-10">
-        
+
         {/* Left Side: Branding & Value Proposition */}
         <div className="hidden lg:block space-y-10 pr-12">
           <Link to="/" className="flex items-center gap-3 group">
@@ -93,18 +93,18 @@ const RequestTrial = () => {
           </Link>
 
           <h2 className="text-6xl font-black text-white tracking-tight leading-[1.1]">
-            Scale Your <br/><span className="text-green-500">Restaurant</span> Faster.
+            Scale Your <br /><span className="text-green-500">Restaurant</span> Faster.
           </h2>
-          
+
           <div className="space-y-8">
-            <BenefitItem icon={<CheckCircle2/>} title="Zero-Setup Infrastructure" desc="We handle the heavy lifting. Your account will be live in 15 mins." />
-            <BenefitItem icon={<CheckCircle2/>} title="WhatsApp Daily Reports" desc="Wake up to your sales data directly on your phone." />
-            <BenefitItem icon={<CheckCircle2/>} title="24/7 Priority Support" desc="Never worry about tech issues during your peak hours." />
+            <BenefitItem icon={<CheckCircle2 />} title="Zero-Setup Infrastructure" desc="We handle the heavy lifting. Your account will be live in 15 mins." />
+            <BenefitItem icon={<CheckCircle2 />} title="WhatsApp Daily Reports" desc="Wake up to your sales data directly on your phone." />
+            <BenefitItem icon={<CheckCircle2 />} title="24/7 Priority Support" desc="Never worry about tech issues during your peak hours." />
           </div>
 
           <div className="flex items-center gap-4 p-6 bg-white/5 border border-white/5 rounded-3xl backdrop-blur-3xl">
             <div className="flex -space-x-3">
-              {[1,2,3,4].map(i => <div key={i} className="w-10 h-10 rounded-full border-2 border-[#0B0B0B] bg-slate-800 flex items-center justify-center text-[10px] font-bold text-white uppercase">{i}</div>)}
+              {[1, 2, 3, 4].map(i => <div key={i} className="w-10 h-10 rounded-full border-2 border-[#0B0B0B] bg-slate-800 flex items-center justify-center text-[10px] font-bold text-white uppercase">{i}</div>)}
             </div>
             <p className="text-gray-400 text-sm font-bold tracking-tight">Joined by 450+ restaurants from India this month.</p>
           </div>
@@ -114,7 +114,7 @@ const RequestTrial = () => {
         <div className="bg-[#111111] border border-white/10 rounded-[2.5rem] p-8 md:p-14 shadow-2xl relative overflow-hidden group">
           {/* Accent Glow */}
           <div className="absolute top-0 right-0 w-32 h-32 bg-green-500/20 blur-[100px] pointer-events-none group-hover:bg-green-500/30 transition-all" />
-          
+
           <div className="mb-12">
             <div className="lg:hidden mb-10 flex justify-center">
               <div className="w-12 h-12 bg-green-500 rounded-xl flex items-center justify-center shadow-xl shadow-green-500/20">
@@ -153,7 +153,7 @@ const RequestTrial = () => {
               disabled={loading}
               className="w-full py-6 bg-green-500 hover:bg-green-600 disabled:opacity-50 text-black font-black text-xl rounded-3xl shadow-2xl shadow-green-500/20 transition-all active:scale-95 flex items-center justify-center gap-4 mt-6 btn-shimmer"
             >
-              {loading ? <Loader2 className="animate-spin" /> : <>Submit Request <ArrowRight/></>}
+              {loading ? <Loader2 className="animate-spin" /> : <>Submit Request <ArrowRight /></>}
             </button>
           </form>
         </div>
